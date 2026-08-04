@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+/*
+ * Palette FMDC : bleu institutionnel de la note de cadrage.
+ * Contrastes vérifiés AA sur fond clair — l'accessibilité est une exigence du §10,
+ * pas une finition, donc pas de gris clair sur blanc pour du texte utile.
+ */
+:root {
+  --background: #f6f7f9;
+  --surface: #ffffff;
+  --foreground: #16202e;
+  --muted: #4a5768;
+  --border: #d9dee5;
+  --primary: #1d4e89;
+  --primary-hover: #163d6c;
+  --primary-soft: #e8eff7;
+  --danger: #a4262c;
+  --danger-soft: #fbeaea;
+  --success: #1d6b45;
+  --success-soft: #e6f3ec;
+  --warning: #8a5a00;
+  --warning-soft: #fdf3e0;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-line: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-soft: var(--primary-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Arabic", sans-serif;
+}
+
+/* Le mode vocal et les grandes cartes supposent des cibles tactiles confortables (§10). */
+button,
+a[role="button"],
+[type="submit"] {
+  min-height: 44px;
+}
+
+:where(a, button, input, textarea, select, [tabindex]):focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}

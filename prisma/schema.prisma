@@ -1,0 +1,223 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// Statuts du cycle de vie d'un dossier (note de cadrage §6.3)
+enum DossierStatus {
+  RECU
+  A_VERIFIER
+  INFOS_DEMANDEES
+  ORIENTE_ASSOCIATION
+  TRANSMIS_PROFESSIONNEL
+  EN_MEDIATION
+  TRANSMIS_AUTORITE
+  RESOLU
+  CLOTURE
+  SIGNALEMENT_COLLECTIF
+}
+
+/// Les trois démarches distinctes du §7
+enum Demarche {
+  CONSEIL
+  SIGNALEMENT
+  RECLAMATION
+}
+
+enum AttachmentKind {
+  TICKET
+  FACTURE
+  PRODUIT
+  CAPTURE
+  AUDIO
+  AUTRE
+}
+
+enum ScanStatus {
+  SKIPPED
+  PENDING
+  CLEAN
+  INFECTED
+}
+
+enum QrType {
+  NATIONAL
+  SECTORIEL
+  ETABLISSEMENT
+}
+
+enum AdminRole {
+  FMDC_ADMIN
+  ASSOCIATION_AGENT
+}
+
+/// Contenu de la réclamation. Ne contient aucune donnée d'identité : celles-ci
+/// vivent dans Requerant, pour la séparation exigée au §9.
+model Dossier {
+  id                    String        @id @default(cuid())
+  reference             String        @unique
+  demarche              Demarche
+  categorie             String
+  motif                 String
+  description           String?
+  resultatAttendu       String?
+  status                DossierStatus @default(RECU)
+  region                String?
+  etablissement         String?
+  professionnel         String?
+  trackingTokenHash     String
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  firstHandledAt        DateTime?
+
+  assignedAssociationId String?
+  assignedAssociation   Association?  @relation(fields: [assignedAssociationId], references: [id])
+  qrCodeId              String?
+  qrCode                QrCode?       @relation(fields: [qrCodeId], references: [id])
+
+  requerant             Requerant?
+  attachments           Attachment[]
+  events                DossierEvent[]
+
+  @@index([status])
+  @@index([categorie])
+  @@index([assignedAssociationId])
+  @@index([createdAt])
+}
+
+/// Données d'identité, volontairement séparées du contenu analytique (§9).
+/// Absent pour un signalement anonyme.
+model Requerant {
+  id              String    @id @default(cuid())
+  dossierId       String    @unique
+  dossier         Dossier   @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  telephone       String?
+  whatsapp        String?
+  email           String?
+  nom             String?
+  adresse         String?
+  phoneVerifiedAt DateTime?
+  createdAt       DateTime  @default(now())
+}
+
+model Attachment {
+  id            String         @id @default(cuid())
+  dossierId     String?
+  dossier       Dossier?       @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  draftId       String?
+  kind          AttachmentKind
+  storageKey    String
+  originalName  String
+  mimeType      String
+  size          Int
+  scanStatus    ScanStatus     @default(SKIPPED)
+  transcription String?
+  createdAt     DateTime       @default(now())
+
+  @@index([draftId])
+  @@index([dossierId])
+}
+
+/// Journal append-only : alimente la frise publique de suivi et la traçabilité interne.
+model DossierEvent {
+  id         String         @id @default(cuid())
+  dossierId  String
+  dossier    Dossier        @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  fromStatus DossierStatus?
+  toStatus   DossierStatus?
+  note       String?
+  publicNote Boolean        @default(true)
+  actorId    String?
+  actorLabel String?
+  createdAt  DateTime       @default(now())
+
+  @@index([dossierId])
+}
+
+model Association {
+  id        String        @id @default(cuid())
+  nom       String
+  regions   String[]
+  secteurs  String[]
+  contact   String?
+  active    Boolean       @default(true)
+  createdAt DateTime      @default(now())
+
+  dossiers  Dossier[]
+  agents    AdminUser[]
+  rules     RoutingRule[]
+}
+
+/// Règles déterministes du moteur de routage « aucune mauvaise porte » (§5).
+model RoutingRule {
+  id            String      @id @default(cuid())
+  categorie     String
+  region        String?
+  priority      Int         @default(100)
+  associationId String
+  association   Association @relation(fields: [associationId], references: [id], onDelete: Cascade)
+
+  @@index([categorie, region])
+}
+
+model AdminUser {
+  id            String       @id @default(cuid())
+  email         String       @unique
+  passwordHash  String
+  nom           String
+  role          AdminRole    @default(ASSOCIATION_AGENT)
+  associationId String?
+  association   Association? @relation(fields: [associationId], references: [id])
+  active        Boolean      @default(true)
+  createdAt     DateTime     @default(now())
+}
+
+/// Les trois types de QR du §6.1. `code` est opaque : il ne porte aucune
+/// donnée personnelle, seulement un identifiant technique signé.
+model QrCode {
+  id             String    @id @default(cuid())
+  code           String    @unique
+  type           QrType
+  signature      String
+  libelle        String
+  secteur        String?
+  region         String?
+  etablissement  String?
+  support        String?
+  active         Boolean   @default(true)
+  scanCount      Int       @default(0)
+  reportedCount  Int       @default(0)
+  createdAt      DateTime  @default(now())
+
+  dossiers       Dossier[]
+}
+
+model OtpChallenge {
+  id         String    @id @default(cuid())
+  phone      String
+  codeHash   String
+  expiresAt  DateTime
+  attempts   Int       @default(0)
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([phone])
+}
+
+/// Journalisation des accès exigée au §9.
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  actorLabel String?
+  action     String
+  entityType String
+  entityId   String
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
