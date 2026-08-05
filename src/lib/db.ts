@@ -1,11 +1,11 @@
-import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 import { PrismaClient } from "@/generated/prisma/client";
 
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 
 function createClient() {
   return new PrismaClient({
-    adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
+    adapter: new PrismaMariaDb(process.env.DATABASE_URL!),
     log: process.env.NODE_ENV === "development" ? ["warn", "error"] : ["error"],
   });
 }

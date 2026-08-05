@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
 }
 
 /// Statuts du cycle de vie d'un dossier (note de cadrage §6.3)
@@ -55,21 +55,27 @@ enum AdminRole {
   ASSOCIATION_AGENT
 }
 
+/// Nature d'un périmètre d'association : région géographique ou secteur d'activité.
+enum ScopeKind {
+  REGION
+  SECTEUR
+}
+
 /// Contenu de la réclamation. Ne contient aucune donnée d'identité : celles-ci
 /// vivent dans Requerant, pour la séparation exigée au §9.
 model Dossier {
   id                    String        @id @default(cuid())
-  reference             String        @unique
+  reference             String        @unique @db.VarChar(30)
   demarche              Demarche
-  categorie             String
-  motif                 String
-  description           String?
-  resultatAttendu       String?
+  categorie             String        @db.VarChar(60)
+  motif                 String        @db.VarChar(60)
+  description           String?       @db.Text
+  resultatAttendu       String?       @db.VarChar(60)
   status                DossierStatus @default(RECU)
-  region                String?
-  etablissement         String?
-  professionnel         String?
-  trackingTokenHash     String
+  region                String?       @db.VarChar(60)
+  etablissement         String?       @db.VarChar(255)
+  professionnel         String?       @db.VarChar(255)
+  trackingTokenHash     String        @db.VarChar(80)
   createdAt             DateTime      @default(now())
   updatedAt             DateTime      @updatedAt
   firstHandledAt        DateTime?
@@ -95,11 +101,11 @@ model Requerant {
   id              String    @id @default(cuid())
   dossierId       String    @unique
   dossier         Dossier   @relation(fields: [dossierId], references: [id], onDelete: Cascade)
-  telephone       String?
-  whatsapp        String?
-  email           String?
-  nom             String?
-  adresse         String?
+  telephone       String?   @db.VarChar(30)
+  whatsapp        String?   @db.VarChar(30)
+  email           String?   @db.VarChar(255)
+  nom             String?   @db.VarChar(150)
+  adresse         String?   @db.Text
   phoneVerifiedAt DateTime?
   createdAt       DateTime  @default(now())
 }
@@ -110,12 +116,12 @@ model Attachment {
   dossier       Dossier?       @relation(fields: [dossierId], references: [id], onDelete: Cascade)
   draftId       String?
   kind          AttachmentKind
-  storageKey    String
-  originalName  String
-  mimeType      String
+  storageKey    String         @db.VarChar(120)
+  originalName  String         @db.VarChar(255)
+  mimeType      String         @db.VarChar(120)
   size          Int
   scanStatus    ScanStatus     @default(SKIPPED)
-  transcription String?
+  transcription String?        @db.Text
   createdAt     DateTime       @default(now())
 
   @@index([draftId])
@@ -129,10 +135,10 @@ model DossierEvent {
   dossier    Dossier        @relation(fields: [dossierId], references: [id], onDelete: Cascade)
   fromStatus DossierStatus?
   toStatus   DossierStatus?
-  note       String?
+  note       String?        @db.Text
   publicNote Boolean        @default(true)
   actorId    String?
-  actorLabel String?
+  actorLabel String?        @db.VarChar(150)
   createdAt  DateTime       @default(now())
 
   @@index([dossierId])
@@ -140,23 +146,36 @@ model DossierEvent {
 
 model Association {
   id        String        @id @default(cuid())
-  nom       String
-  regions   String[]
-  secteurs  String[]
-  contact   String?
+  nom       String        @db.VarChar(255)
+  contact   String?       @db.VarChar(255)
   active    Boolean       @default(true)
   createdAt DateTime      @default(now())
 
   dossiers  Dossier[]
   agents    AdminUser[]
   rules     RoutingRule[]
+  scopes    AssociationScope[]
+}
+
+/// Régions et secteurs couverts par une association. MySQL n'a pas de colonnes
+/// tableau : une table dédiée les rend en prime interrogeables, ce dont le
+/// routage aura besoin quand il s'appuiera sur le périmètre déclaré.
+model AssociationScope {
+  id            String      @id @default(cuid())
+  associationId String
+  association   Association @relation(fields: [associationId], references: [id], onDelete: Cascade)
+  kind          ScopeKind
+  value         String      @db.VarChar(100)
+
+  @@unique([associationId, kind, value])
+  @@index([kind, value])
 }
 
 /// Règles déterministes du moteur de routage « aucune mauvaise porte » (§5).
 model RoutingRule {
   id            String      @id @default(cuid())
-  categorie     String
-  region        String?
+  categorie     String      @db.VarChar(60)
+  region        String?     @db.VarChar(60)
   priority      Int         @default(100)
   associationId String
   association   Association @relation(fields: [associationId], references: [id], onDelete: Cascade)
@@ -167,8 +186,8 @@ model RoutingRule {
 model AdminUser {
   id            String       @id @default(cuid())
   email         String       @unique
-  passwordHash  String
-  nom           String
+  passwordHash  String       @db.VarChar(100)
+  nom           String       @db.VarChar(150)
   role          AdminRole    @default(ASSOCIATION_AGENT)
   associationId String?
   association   Association? @relation(fields: [associationId], references: [id])
@@ -180,14 +199,14 @@ model AdminUser {
 /// donnée personnelle, seulement un identifiant technique signé.
 model QrCode {
   id             String    @id @default(cuid())
-  code           String    @unique
+  code           String    @unique @db.VarChar(50)
   type           QrType
-  signature      String
-  libelle        String
-  secteur        String?
-  region         String?
-  etablissement  String?
-  support        String?
+  signature      String    @db.VarChar(80)
+  libelle        String    @db.VarChar(255)
+  secteur        String?   @db.VarChar(60)
+  region         String?   @db.VarChar(60)
+  etablissement  String?   @db.VarChar(255)
+  support        String?   @db.VarChar(255)
   active         Boolean   @default(true)
   scanCount      Int       @default(0)
   reportedCount  Int       @default(0)
@@ -198,8 +217,8 @@ model QrCode {
 
 model OtpChallenge {
   id         String    @id @default(cuid())
-  phone      String
-  codeHash   String
+  phone      String    @db.VarChar(30)
+  codeHash   String    @db.VarChar(80)
   expiresAt  DateTime
   attempts   Int       @default(0)
   consumedAt DateTime?
@@ -212,10 +231,10 @@ model OtpChallenge {
 model AuditLog {
   id         String   @id @default(cuid())
   actorId    String?
-  actorLabel String?
-  action     String
-  entityType String
-  entityId   String
+  actorLabel String?  @db.VarChar(150)
+  action     String   @db.VarChar(80)
+  entityType String   @db.VarChar(60)
+  entityId   String   @db.VarChar(60)
   createdAt  DateTime @default(now())
 
   @@index([entityType, entityId])

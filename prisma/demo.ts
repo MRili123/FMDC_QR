@@ -1,12 +1,12 @@
 import "dotenv/config";
-import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 import { createHmac, randomBytes } from "node:crypto";
 import { PrismaClient } from "../src/generated/prisma/client";
 import type { Demarche, DossierStatus } from "../src/generated/prisma/enums";
 
 /** Dossiers de démonstration, pour présenter le tableau de bord au bureau de la FMDC. */
 const prisma = new PrismaClient({
-  adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
+  adapter: new PrismaMariaDb(process.env.DATABASE_URL!),
 });
 
 const DEMO = [

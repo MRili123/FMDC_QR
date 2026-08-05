@@ -12,7 +12,10 @@ export default async function AssociationsPage() {
   if (user.role !== "FMDC_ADMIN") notFound();
 
   const associations = await prisma.association.findMany({
-    include: { rules: { orderBy: { categorie: "asc" } } },
+    include: {
+      rules: { orderBy: { categorie: "asc" } },
+      scopes: { orderBy: { value: "asc" } },
+    },
     orderBy: { nom: "asc" },
   });
 
@@ -29,20 +32,18 @@ export default async function AssociationsPage() {
             ) : null}
 
             <div className="mt-2 flex flex-wrap gap-1.5">
-              {association.regions.map((region) => (
+              {association.scopes.map((scope) => (
                 <span
-                  key={region}
-                  className="rounded-full bg-primary-soft px-2.5 py-1 text-xs font-medium text-primary"
+                  key={scope.id}
+                  className={
+                    scope.kind === "REGION"
+                      ? "rounded-full bg-primary-soft px-2.5 py-1 text-xs font-medium text-primary"
+                      : "rounded-full bg-line px-2.5 py-1 text-xs font-medium text-muted"
+                  }
                 >
-                  {t(`region.${region}`)}
-                </span>
-              ))}
-              {association.secteurs.map((secteur) => (
-                <span
-                  key={secteur}
-                  className="rounded-full bg-line px-2.5 py-1 text-xs font-medium text-muted"
-                >
-                  {t(`secteur.${secteur}`)}
+                  {scope.kind === "REGION"
+                    ? t(`region.${scope.value}`)
+                    : t(`secteur.${scope.value}`)}
                 </span>
               ))}
             </div>

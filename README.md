@@ -26,16 +26,29 @@ associations affiliées.
 
 ## Démarrage
 
+Prérequis : **XAMPP** (MySQL / MariaDB). Démarrer MySQL depuis le panneau de
+contrôle XAMPP, puis créer la base une fois :
+
+```sql
+CREATE DATABASE qrconso CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+Ensuite :
+
 ```bash
 npm install
 cp .env.example .env
-npm run db:up
 npx prisma migrate dev
 npm run db:seed
 npm run dev
 ```
 
-Application sur http://localhost:3100.
+Application sur http://localhost:3100. La base est visible dans phpMyAdmin
+(http://localhost/phpmyadmin), ou via `npm run db:studio`.
+
+`.env.example` suppose les identifiants XAMPP par défaut (`root`, sans mot de
+passe). Si vous avez défini un mot de passe :
+`DATABASE_URL="mysql://root:MOTDEPASSE@localhost:3306/qrconso"`.
 
 Comptes de démonstration créés par le seed :
 
@@ -59,7 +72,6 @@ npx tsx prisma/demo.ts
 | `npm run dev` | Serveur de développement |
 | `npm run build` | Build de production |
 | `npm run typecheck` | Vérification TypeScript |
-| `npm run db:up` | Démarre PostgreSQL (Docker) |
 | `npm run db:migrate` | Applique les migrations |
 | `npm run db:seed` | Données initiales |
 | `npm run db:studio` | Explorateur de base Prisma |
@@ -68,7 +80,7 @@ npx tsx prisma/demo.ts
 ## Architecture
 
 - **Next.js 16** (App Router, Turbopack) — une seule base pour la PWA, l'API et le back-office
-- **PostgreSQL + Prisma 7** avec l'adaptateur `@prisma/adapter-pg`
+- **MySQL / MariaDB + Prisma 7** avec l'adaptateur `@prisma/adapter-mariadb`
 - **i18n maison** (`src/i18n/`) — deux locales, messages statiques, RTL par `dir`
 - **Session maison** (`src/server/session.ts`) — JWT signé en cookie httpOnly, agent
   relu en base à chaque requête pour qu'une désactivation prenne effet aussitôt
@@ -100,6 +112,18 @@ récent pour ce numéro.
 file nationale plutôt que d'être rejeté — c'est ce que « aucune mauvaise porte »
 signifie concrètement.
 
+### Spécificités MySQL
+
+MySQL n'a pas de colonnes tableau : les régions et secteurs couverts par une
+association vivent dans `AssociationScope` (une ligne par valeur, avec un
+`kind` REGION ou SECTEUR). C'est aussi plus interrogeable qu'un tableau, ce dont
+le routage aura besoin s'il s'appuie un jour sur le périmètre déclaré.
+
+MySQL tronque par défaut les colonnes `String` à 191 caractères. Les champs
+longs — description d'un dossier, note d'un événement, adresse, transcription —
+sont donc explicitement typés `@db.Text` dans le schéma. Ne pas retirer ces
+annotations : une description de 600 caractères serait sinon coupée en silence.
+
 ### Capacités reportées
 
 `src/server/providers.ts` regroupe les interfaces des briques non branchées (SMS,
@@ -130,6 +154,8 @@ code est en place mais n'a pas été exercé de bout en bout.
 ## Avant la mise en production
 
 - Générer un vrai `APP_SECRET` (`node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`)
+- Créer un utilisateur MySQL dédié — `root` sans mot de passe convient à XAMPP en
+  développement, jamais en production
 - Remplacer le stockage disque de `src/server/storage.ts` par un stockage objet
 - Brancher un prestataire SMS, activer l'analyse antivirus des pièces jointes
 - Configurer HTTPS (les cookies de session passent en `secure` hors développement)

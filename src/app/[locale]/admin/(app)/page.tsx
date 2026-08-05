@@ -24,9 +24,9 @@ export default async function QueuePage({ searchParams }: PageProps<"/[locale]/a
       ...(typeof categorie === "string" && CATEGORIES.includes(categorie as never)
         ? { categorie }
         : {}),
-      ...(typeof q === "string" && q.trim()
-        ? { reference: { contains: q.trim(), mode: "insensitive" as const } }
-        : {}),
+      // Les collations MySQL sont insensibles à la casse par défaut : pas de
+      // `mode: "insensitive"` à préciser ici, contrairement à PostgreSQL.
+      ...(typeof q === "string" && q.trim() ? { reference: { contains: q.trim() } } : {}),
     },
     include: { assignedAssociation: { select: { nom: true } } },
     orderBy: { createdAt: "desc" },

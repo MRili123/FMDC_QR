@@ -25,8 +25,18 @@ export async function createAssociation(formData: FormData) {
     data: {
       nom,
       contact: String(formData.get("contact") ?? "").trim() || null,
-      regions: pickMany(formData, "regions", REGIONS),
-      secteurs: pickMany(formData, "secteurs", SECTEURS),
+      scopes: {
+        create: [
+          ...pickMany(formData, "regions", REGIONS).map((value) => ({
+            kind: "REGION" as const,
+            value,
+          })),
+          ...pickMany(formData, "secteurs", SECTEURS).map((value) => ({
+            kind: "SECTEUR" as const,
+            value,
+          })),
+        ],
+      },
     },
   });
 

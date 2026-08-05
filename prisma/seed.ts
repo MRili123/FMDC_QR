@@ -1,11 +1,11 @@
 import "dotenv/config";
-import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 import { createHmac, randomBytes } from "node:crypto";
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "../src/generated/prisma/client";
 
 const prisma = new PrismaClient({
-  adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
+  adapter: new PrismaMariaDb(process.env.DATABASE_URL!),
 });
 
 function hmac(payload: string) {
@@ -65,9 +65,13 @@ async function main() {
       create: {
         id: item.nom,
         nom: item.nom,
-        regions: item.regions,
-        secteurs: item.secteurs,
         contact: item.contact,
+        scopes: {
+          create: [
+            ...item.regions.map((value) => ({ kind: "REGION" as const, value })),
+            ...item.secteurs.map((value) => ({ kind: "SECTEUR" as const, value })),
+          ],
+        },
       },
     });
     created.set(item.nom, association.id);
