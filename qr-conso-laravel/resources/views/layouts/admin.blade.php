@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', __('Back-office')) — QR Conso Maroc</title>
+    <title>@yield('title', __('nav.admin')) — QR Conso Maroc</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('theme/assets/vendor_assets/css/bootstrap/bootstrap.css') }}">
@@ -36,8 +36,8 @@
                         {{ auth()->user()->name }}
                         <small class="d-block text-light">
                             {{ auth()->user()->isFmdcAdmin()
-                                ? __('Bureau national')
-                                : (auth()->user()->association?->nom ?? __('Association')) }}
+                                ? __('track.assignedNational')
+                                : (auth()->user()->association?->nom ?? __('admin.associations.title')) }}
                         </small>
                     </span>
                 </li>
@@ -49,7 +49,7 @@
                 <li>
                     <form method="POST" action="{{ route('admin.logout', $locale) }}" class="d-inline">
                         @csrf
-                        <button type="submit" class="btn btn-sm btn-outline-danger ml-2">{{ __('Se déconnecter') }}</button>
+                        <button type="submit" class="btn btn-sm btn-outline-danger ml-2">{{ __('admin.nav.logout') }}</button>
                     </form>
                 </li>
             </ul>
@@ -62,33 +62,33 @@
         <div class="sidebar sidebar-collapse" id="sidebar">
             <div class="sidebar__menu-group">
                 <ul class="sidebar_nav">
-                    <li class="menu-title"><span>{{ __('Pilotage') }}</span></li>
+                    <li class="menu-title"><span>{{ __('admin.nav.sectionPilotage') }}</span></li>
 
                     <li class="{{ request()->routeIs('admin.dossiers.*') ? 'active' : '' }}">
                         <a href="{{ route('admin.dossiers.index', $locale) }}">
                             <i class="las la-folder-open nav-icon"></i>
-                            <span class="menu-text">{{ __('Dossiers') }}</span>
+                            <span class="menu-text">{{ __('admin.nav.queue') }}</span>
                         </a>
                     </li>
                     <li class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                         <a href="{{ route('admin.dashboard', $locale) }}">
                             <i class="las la-chart-bar nav-icon"></i>
-                            <span class="menu-text">{{ __('Tableau de bord') }}</span>
+                            <span class="menu-text">{{ __('admin.nav.dashboard') }}</span>
                         </a>
                     </li>
 
-                    <li class="menu-title"><span>{{ __('Configuration') }}</span></li>
+                    <li class="menu-title"><span>{{ __('admin.nav.sectionConfig') }}</span></li>
 
                     <li class="{{ request()->routeIs('admin.qrcodes.*') ? 'active' : '' }}">
                         <a href="{{ route('admin.qrcodes.index', $locale) }}">
                             <i class="las la-qrcode nav-icon"></i>
-                            <span class="menu-text">{{ __('QR codes') }}</span>
+                            <span class="menu-text">{{ __('admin.nav.qr') }}</span>
                         </a>
                     </li>
                     <li class="{{ request()->routeIs('admin.associations.*') ? 'active' : '' }}">
                         <a href="{{ route('admin.associations.index', $locale) }}">
                             <i class="las la-users nav-icon"></i>
-                            <span class="menu-text">{{ __('Associations') }}</span>
+                            <span class="menu-text">{{ __('admin.nav.associations') }}</span>
                         </a>
                     </li>
                 </ul>

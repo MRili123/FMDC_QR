@@ -60,6 +60,7 @@ class DraftService
         $draft = $this->all();
 
         return match (true) {
+            empty($draft['demarche']) => 'demarche',
             empty($draft['categorie']) => 'categorie',
             empty($draft['motif']) => 'motif',
             default => null,

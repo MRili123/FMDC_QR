@@ -25,10 +25,10 @@
     <div class="fmdc-header__inner">
         <a href="{{ route('home', $locale) }}" class="fmdc-logo">
             <span class="fmdc-logo__mark">FMDC</span>
-            <span class="fmdc-logo__text">{{ __('QR Conso Maroc') }}</span>
+            <span class="fmdc-logo__text">{{ __('app.name') }}</span>
         </a>
         <nav class="fmdc-header__nav">
-            <a href="{{ route('suivi.form', $locale) }}">{{ __('Suivre mon dossier') }}</a>
+            <a href="{{ route('suivi.form', $locale) }}">{{ __('nav.track') }}</a>
             <a href="{{ route(Route::currentRouteName() ?: 'home', array_merge(request()->route()->parameters(), ['locale' => $rtl ? 'fr' : 'ar'])) }}"
                class="fmdc-lang">{{ $rtl ? 'Français' : 'العربية' }}</a>
         </nav>
@@ -44,10 +44,10 @@
 
 <footer class="fmdc-footer">
     <div class="container">
-        <p class="mb-1">{{ __('Fédération Marocaine des Droits du Consommateur') }}</p>
+        <p class="mb-1">{{ __('app.org') }}</p>
         <p class="fmdc-footer__warn">
             <i class="las la-shield-alt"></i>
-            {{ __('La FMDC ne vous demandera jamais vos coordonnées bancaires.') }}
+            {{ __('qr.neverBank') }}
         </p>
     </div>
 </footer>

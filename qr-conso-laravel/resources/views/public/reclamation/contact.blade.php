@@ -1,5 +1,7 @@
 @extends('layouts.public')
-@section('title', __('wizard.step6.title'))
+@section('title', ($draft['demarche'] ?? null) === 'SIGNALEMENT'
+    ? __('wizard.step0.contactTitleSignalement')
+    : __('wizard.step6.title'))
 
 @section('content')
 <div class="container fmdc-wizard">
@@ -9,9 +11,12 @@
         <i class="las la-arrow-left"></i> {{ __('wizard.back') }}
     </a>
 
+    @php($demarche = $draft['demarche'] ?? 'RECLAMATION')
+    @php($estSignalement = $demarche === 'SIGNALEMENT')
+
     <div class="fmdc-step-head">
-        <h1>{{ __('wizard.step6.title') }}</h1>
-        <p>{{ __('wizard.step6.hint') }}</p>
+        <h1>{{ $estSignalement ? __('wizard.step0.contactTitleSignalement') : __('wizard.step6.title') }}</h1>
+        <p>{{ $estSignalement ? __('wizard.step0.contactHintSignalement') : __('wizard.step6.hint') }}</p>
     </div>
 
     @if($errors->any())
@@ -23,26 +28,24 @@
     <form method="POST" action="{{ route('reclamation.submit', $locale) }}" id="contact-form">
         @csrf
 
-        {{-- Les trois démarches du §7 sont un choix explicite, pas une déduction. --}}
-        <div class="fmdc-card">
-            <label class="d-block mb-2" style="font-weight:600">{{ __('wizard.step6.demarche') }}</label>
-            @foreach([
-                'RECLAMATION' => ['demarcheReclamation', 'demarcheReclamationHint'],
-                'SIGNALEMENT' => ['demarcheSignalement', 'demarcheSignalementHint'],
-                'CONSEIL' => ['demarcheConseil', 'demarcheConseilHint'],
-            ] as $value => [$label, $hint])
-                <label class="d-flex align-items-start mb-2" style="gap:10px;cursor:pointer">
-                    <input type="radio" name="demarche" value="{{ $value }}" class="mt-1"
-                           {{ $loop->first ? 'checked' : '' }} required>
-                    <span>
-                        <strong style="font-size:15px">{{ __("wizard.step6.$label") }}</strong>
-                        <small class="d-block text-muted">{{ __("wizard.step6.$hint") }}</small>
-                    </span>
-                </label>
-            @endforeach
+        {{-- La démarche a été choisie au premier écran : on la rappelle sans
+             permettre de la changer ici, pour que la promesse faite à l'entrée
+             ne puisse pas être défaite à la sortie. --}}
+        <div class="fmdc-card d-flex align-items-center" style="gap:12px">
+            <i class="las {{ $estSignalement ? 'la-bullhorn' : ($demarche === 'CONSEIL' ? 'la-balance-scale' : 'la-file-signature') }}"
+               style="font-size:26px;color:var(--fmdc-primary)"></i>
+            <span>
+                <strong style="font-size:15px">
+                    {{ __('wizard.step6.demarche'.($estSignalement ? 'Signalement' : ($demarche === 'CONSEIL' ? 'Conseil' : 'Reclamation'))) }}
+                </strong>
+                <a href="{{ route('reclamation.demarche', $locale) }}" class="d-block" style="font-size:13px">
+                    {{ __('wizard.step0.change') }}
+                </a>
+            </span>
         </div>
 
-        <div class="fmdc-card" id="contact-fields">
+        <div class="fmdc-card" id="contact-fields"
+             @if($estSignalement) style="display:none" @endif>
             <div class="fmdc-field">
                 <label for="telephone">{{ __('wizard.step6.phone') }}</label>
                 <div class="d-flex" style="gap:8px">
@@ -78,9 +81,13 @@
             </div>
         </div>
 
-        <div class="fmdc-card">
+        {{-- Pour un signalement l'anonymat est le défaut, pas une case à
+             débusquer : c'est la démarche que le §7 décrit comme pouvant se
+             passer d'identité. --}}
+        <div class="fmdc-card {{ $estSignalement ? 'fmdc-card--accent' : '' }}">
             <label class="d-flex align-items-start" style="gap:10px;cursor:pointer">
-                <input type="checkbox" name="anonyme" value="1" id="anonyme" class="mt-1">
+                <input type="checkbox" name="anonyme" value="1" id="anonyme" class="mt-1"
+                       @checked($estSignalement)>
                 <span>
                     <strong style="font-size:15px">{{ __('wizard.step6.anonymous') }}</strong>
                     <small class="d-block text-muted">{{ __('wizard.step6.anonymousNote') }}</small>

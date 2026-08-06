@@ -139,6 +139,54 @@ body.fmdc-public {
     padding: 20px;
     margin-bottom: 16px;
 }
+.fmdc-card--accent { border-color: var(--fmdc-primary); background: var(--fmdc-primary-soft); }
+
+/* Choix de la démarche : trois portes d'entrée, larges et lisibles d'un coup
+   d'œil, plutôt qu'une liste de boutons radio. */
+.fmdc-path {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    text-align: start;
+    background: #fff;
+    border: 2px solid var(--fmdc-line);
+    border-radius: var(--fmdc-radius);
+    padding: 18px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: border-color .15s, transform .1s;
+    color: var(--fmdc-ink);
+}
+.fmdc-path:hover { border-color: var(--fmdc-primary); text-decoration: none; color: var(--fmdc-ink); }
+.fmdc-path:active { transform: scale(.99); }
+
+.fmdc-path__icon {
+    flex: 0 0 auto;
+    width: 46px; height: 46px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 12px;
+    background: var(--fmdc-primary-soft);
+    color: var(--fmdc-primary);
+    font-size: 24px;
+}
+.fmdc-path__body { flex: 1; min-width: 0; }
+.fmdc-path__title { display: block; font-weight: 600; font-size: 16px; line-height: 1.3; }
+.fmdc-path__hint { display: block; color: var(--fmdc-muted); font-size: 13.5px; margin-top: 3px; line-height: 1.4; }
+.fmdc-path__arrow { flex: 0 0 auto; color: var(--fmdc-muted); font-size: 16px; }
+
+.fmdc-path__badge {
+    display: inline-block;
+    vertical-align: middle;
+    margin-inline-start: 6px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #e6f6ec;
+    color: #1f7a44;
+    font-size: 11.5px;
+    font-weight: 600;
+    white-space: nowrap;
+}
 
 .fmdc-btn {
     display: inline-flex;

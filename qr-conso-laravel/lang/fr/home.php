@@ -3,7 +3,7 @@
 return [
         'title' => 'Un problème avec un achat ou un service ?',
         'subtitle' => 'Décrivez-le simplement. Nous trouvons l\'association compétente à votre place.',
-        'cta' => 'Signaler un problème',
+        'cta' => 'Déposer une demande',
         'ctaTrack' => 'Suivre un dossier existant',
         'reassure1' => 'Aucun compte à créer',
         'reassure2' => 'Moins de 2 minutes',

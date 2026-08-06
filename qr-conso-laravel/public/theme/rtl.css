@@ -72,3 +72,4 @@ body.sidebar-hide .contents { margin-right: 0; }
 
 /* Icônes fléchées : le retour visuel doit pointer vers la droite en RTL */
 .fmdc-back .la-arrow-left::before { content: "\f30b"; }
+.fmdc-path__arrow .la-angle-right::before { content: "\f104"; }

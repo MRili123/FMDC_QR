@@ -9,10 +9,29 @@
         <p class="text-muted" style="font-size:16px">{{ __('home.subtitle') }}</p>
     </div>
 
-    <div class="fmdc-card text-center">
+    <div class="fmdc-card">
         <a href="{{ route('reclamation.start', $locale) }}" class="fmdc-btn fmdc-btn--block mb-3">
             <i class="las la-edit"></i> {{ __('home.cta') }}
         </a>
+
+        {{-- Porte d'entrée dédiée au signalement : celui qui veut dénoncer une
+             pratique sans se nommer ne doit pas avoir à deviner que c'est
+             possible au bout du parcours. --}}
+        <a href="{{ route('reclamation.start', ['locale' => $locale, 'demarche' => 'SIGNALEMENT']) }}"
+           class="fmdc-path mb-3">
+            <span class="fmdc-path__icon"><i class="las la-bullhorn"></i></span>
+            <span class="fmdc-path__body">
+                <span class="fmdc-path__title">
+                    {{ __('wizard.step6.demarcheSignalement') }}
+                    <span class="fmdc-path__badge">
+                        <i class="las la-user-secret"></i> {{ __('wizard.step0.anonymousBadge') }}
+                    </span>
+                </span>
+                <span class="fmdc-path__hint">{{ __('wizard.step6.demarcheSignalementHint') }}</span>
+            </span>
+            <span class="fmdc-path__arrow"><i class="las la-angle-right"></i></span>
+        </a>
+
         <a href="{{ route('suivi.form', $locale) }}" class="fmdc-btn fmdc-btn--ghost fmdc-btn--block">
             <i class="las la-search"></i> {{ __('home.ctaTrack') }}
         </a>

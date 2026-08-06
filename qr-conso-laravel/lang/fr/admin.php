@@ -14,6 +14,8 @@ return [
             'qr' => 'QR codes',
             'associations' => 'Associations',
             'logout' => 'Se déconnecter',
+            'sectionPilotage' => 'Pilotage',
+            'sectionConfig' => 'Configuration',
         ],
         'queue' => [
             'title' => 'Dossiers',

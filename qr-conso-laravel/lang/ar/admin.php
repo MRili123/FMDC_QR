@@ -14,6 +14,8 @@ return [
             'qr' => 'رموز QR',
             'associations' => 'الجمعيات',
             'logout' => 'تسجيل الخروج',
+            'sectionPilotage' => 'القيادة',
+            'sectionConfig' => 'الإعدادات',
         ],
         'queue' => [
             'title' => 'الملفات',

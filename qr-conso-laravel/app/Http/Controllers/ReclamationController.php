@@ -41,16 +41,59 @@ class ReclamationController extends Controller
             }
         }
 
+        // Une démarche peut être imposée depuis l'accueil : « Signaler une
+        // pratique » doit mener directement au parcours anonyme.
+        if (in_array($request->query('demarche'), config('taxonomy.demarches'), true)) {
+            $this->draft->merge(['demarche' => $request->query('demarche')]);
+
+            return redirect()->route('reclamation.categorie', $locale);
+        }
+
+        return redirect()->route('reclamation.demarche', $locale);
+    }
+
+    // ---- Écran 1 : que souhaitez-vous faire ? ----
+
+    /**
+     * Le choix entre conseil, signalement et réclamation ouvre le parcours au
+     * lieu de le clore.
+     *
+     * Il était auparavant posé au dernier écran, ce qui obligeait une personne
+     * craignant des représailles à remplir cinq écrans avant de découvrir
+     * qu'elle pouvait rester anonyme. Celle qui a le plus besoin de l'anonymat
+     * est justement celle qui abandonnera le formulaire avant d'y arriver.
+     */
+    public function demarche(string $locale)
+    {
+        return view('public.reclamation.demarche', [
+            'locale' => $locale,
+            'step' => 1,
+            'draft' => $this->draft->all(),
+        ]);
+    }
+
+    public function storeDemarche(Request $request, string $locale)
+    {
+        $data = $request->validate([
+            'demarche' => ['required', 'in:'.implode(',', config('taxonomy.demarches'))],
+        ]);
+
+        $this->draft->merge($data);
+
         return redirect()->route('reclamation.categorie', $locale);
     }
 
-    // ---- Écran 1 : quel problème ? ----
+    // ---- Écran 2 : quel problème ? ----
 
     public function categorie(string $locale)
     {
+        if ($this->draft->firstMissingStep() === 'demarche') {
+            return redirect()->route('reclamation.demarche', $locale);
+        }
+
         return view('public.reclamation.categorie', [
             'locale' => $locale,
-            'step' => 1,
+            'step' => 2,
             'draft' => $this->draft->all(),
         ]);
     }
@@ -66,7 +109,7 @@ class ReclamationController extends Controller
         return redirect()->route('reclamation.motif', $locale);
     }
 
-    // ---- Écran 2 : que s'est-il passé ? ----
+    // ---- Écran 3 : que s'est-il passé ? ----
 
     public function motif(string $locale)
     {
@@ -78,7 +121,7 @@ class ReclamationController extends Controller
 
         return view('public.reclamation.motif', [
             'locale' => $locale,
-            'step' => 2,
+            'step' => 3,
             'draft' => $this->draft->all(),
         ]);
     }
@@ -94,7 +137,7 @@ class ReclamationController extends Controller
         return redirect()->route('reclamation.decrire', $locale);
     }
 
-    // ---- Écran 3 : décrire ----
+    // ---- Écran 4 : décrire ----
 
     public function decrire(string $locale)
     {
@@ -104,7 +147,7 @@ class ReclamationController extends Controller
 
         return view('public.reclamation.decrire', [
             'locale' => $locale,
-            'step' => 3,
+            'step' => 4,
             'draft' => $this->draft->all(),
             'aiAvailable' => $this->ai->isAvailable(),
         ]);
@@ -146,7 +189,7 @@ class ReclamationController extends Controller
         ));
     }
 
-    // ---- Écran 4 : preuves ----
+    // ---- Écran 5 : preuves ----
 
     public function preuves(string $locale)
     {
@@ -156,7 +199,7 @@ class ReclamationController extends Controller
 
         return view('public.reclamation.preuves', [
             'locale' => $locale,
-            'step' => 4,
+            'step' => 5,
             'draft' => $this->draft->all(),
             'attachments' => Attachment::where('draft_id', $this->draft->draftId())->latest()->get(),
         ]);
@@ -167,7 +210,7 @@ class ReclamationController extends Controller
         return redirect()->route('reclamation.resultat', $locale);
     }
 
-    // ---- Écran 5 : résultat attendu ----
+    // ---- Écran 6 : résultat attendu ----
 
     public function resultat(string $locale)
     {
@@ -177,7 +220,7 @@ class ReclamationController extends Controller
 
         return view('public.reclamation.resultat', [
             'locale' => $locale,
-            'step' => 5,
+            'step' => 6,
             'draft' => $this->draft->all(),
         ]);
     }
@@ -193,7 +236,7 @@ class ReclamationController extends Controller
         return redirect()->route('reclamation.contact', $locale);
     }
 
-    // ---- Écran 6 : contact minimal ----
+    // ---- Écran 7 : contact minimal ----
 
     public function contact(string $locale)
     {
@@ -203,7 +246,7 @@ class ReclamationController extends Controller
 
         return view('public.reclamation.contact', [
             'locale' => $locale,
-            'step' => 6,
+            'step' => 7,
             'draft' => $this->draft->all(),
         ]);
     }
@@ -215,7 +258,6 @@ class ReclamationController extends Controller
     public function submit(Request $request, string $locale)
     {
         $data = $request->validate([
-            'demarche' => ['required', 'in:CONSEIL,SIGNALEMENT,RECLAMATION'],
             'anonyme' => ['nullable', 'boolean'],
             'telephone' => ['nullable', 'string', 'max:20'],
             'email' => ['nullable', 'email', 'max:200'],
@@ -224,8 +266,11 @@ class ReclamationController extends Controller
 
         $draft = $this->draft->all();
 
-        if (empty($draft['categorie']) || empty($draft['motif'])) {
-            return redirect()->route('reclamation.categorie', $locale);
+        // La démarche est choisie au premier écran : la relire ici, plutôt que
+        // de la recevoir du formulaire, évite qu'un signalement annoncé anonyme
+        // ne se transforme en réclamation nominative au moment de l'envoi.
+        if ($missing = $this->draft->firstMissingStep()) {
+            return redirect()->route('reclamation.'.$missing, $locale);
         }
 
         $anonyme = (bool) ($data['anonyme'] ?? false);
@@ -240,7 +285,7 @@ class ReclamationController extends Controller
         }
 
         $result = $this->dossiers->create([
-            'demarche' => $data['demarche'],
+            'demarche' => $draft['demarche'],
             'categorie' => $draft['categorie'],
             'motif' => $draft['motif'],
             'description' => $draft['description'] ?? null,

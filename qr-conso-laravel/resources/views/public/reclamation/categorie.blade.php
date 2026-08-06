@@ -11,6 +11,10 @@
         </div>
     @endif
 
+    <a href="{{ route('reclamation.demarche', $locale) }}" class="fmdc-back">
+        <i class="las la-arrow-left"></i> {{ __('wizard.back') }}
+    </a>
+
     <div class="fmdc-step-head">
         <h1>{{ __('wizard.step1.title') }}</h1>
         <p>{{ __('wizard.step1.hint') }}</p>
