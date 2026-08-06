@@ -1,6 +1,6 @@
 @extends('layouts.public')
 @section('title', ($draft['demarche'] ?? null) === 'SIGNALEMENT'
-    ? __('wizard.step0.contactTitleSignalement')
+    ? __('wizard.orient.contactTitleSignalement')
     : __('wizard.step6.title'))
 
 @section('content')
@@ -15,8 +15,8 @@
     @php($estSignalement = $demarche === 'SIGNALEMENT')
 
     <div class="fmdc-step-head">
-        <h1>{{ $estSignalement ? __('wizard.step0.contactTitleSignalement') : __('wizard.step6.title') }}</h1>
-        <p>{{ $estSignalement ? __('wizard.step0.contactHintSignalement') : __('wizard.step6.hint') }}</p>
+        <h1>{{ $estSignalement ? __('wizard.orient.contactTitleSignalement') : __('wizard.step6.title') }}</h1>
+        <p>{{ $estSignalement ? __('wizard.orient.contactHintSignalement') : __('wizard.step6.hint') }}</p>
     </div>
 
     @if($errors->any())
@@ -36,10 +36,10 @@
                style="font-size:26px;color:var(--fmdc-primary)"></i>
             <span>
                 <strong style="font-size:15px">
-                    {{ __('wizard.step6.demarche'.($estSignalement ? 'Signalement' : ($demarche === 'CONSEIL' ? 'Conseil' : 'Reclamation'))) }}
+                    {{ __('wizard.orient.'.($estSignalement ? 'signalement' : ($demarche === 'CONSEIL' ? 'conseil' : 'reclamation'))) }}
                 </strong>
-                <a href="{{ route('reclamation.demarche', $locale) }}" class="d-block" style="font-size:13px">
-                    {{ __('wizard.step0.change') }}
+                <a href="{{ route('reclamation.aide', $locale) }}" class="d-block" style="font-size:13px">
+                    {{ __('wizard.orient.change') }}
                 </a>
             </span>
         </div>

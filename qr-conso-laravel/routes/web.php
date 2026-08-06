@@ -35,6 +35,11 @@ Route::prefix('{locale}')
         // ---- Parcours de dépôt (§7) ----
         Route::prefix('reclamation')->name('reclamation.')->group(function () {
             Route::get('/', [ReclamationController::class, 'start'])->name('start');
+
+            // Deux questions d'orientation avant le formulaire : le conseil se
+            // sépare d'abord, puis signalement ou réclamation.
+            Route::get('/aide', [ReclamationController::class, 'aide'])->name('aide');
+            Route::post('/aide', [ReclamationController::class, 'storeAide']);
             Route::get('/demarche', [ReclamationController::class, 'demarche'])->name('demarche');
             Route::post('/demarche', [ReclamationController::class, 'storeDemarche']);
             Route::get('/categorie', [ReclamationController::class, 'categorie'])->name('categorie');

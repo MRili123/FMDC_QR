@@ -12,8 +12,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * Les sept écrans du §7. Objectif affiché : moins de 90 secondes pour un
- * signalement simple, cinq informations obligatoires au maximum.
+ * Le parcours du §7 : deux questions d'orientation, puis six étapes de saisie.
+ * Objectif affiché : moins de 90 secondes pour un signalement simple, cinq
+ * informations obligatoires au maximum.
  */
 class ReclamationController extends Controller
 {
@@ -41,10 +42,38 @@ class ReclamationController extends Controller
             }
         }
 
-        // Une démarche peut être imposée depuis l'accueil : « Signaler une
-        // pratique » doit mener directement au parcours anonyme.
-        if (in_array($request->query('demarche'), config('taxonomy.demarches'), true)) {
-            $this->draft->merge(['demarche' => $request->query('demarche')]);
+        return redirect()->route('reclamation.aide', $locale);
+    }
+
+    /**
+     * Orientation, en deux questions courtes posées avant le formulaire.
+     *
+     * Ce choix était auparavant au dernier écran, ce qui obligeait une personne
+     * craignant des représailles à remplir cinq écrans avant de découvrir
+     * qu'elle pouvait rester anonyme. Celle qui a le plus besoin de l'anonymat
+     * est justement celle qui abandonne un formulaire inconnu avant d'y arriver.
+     *
+     * Le conseil se sépare en premier parce qu'il n'ouvre pas de litige : il
+     * n'a ni professionnel mis en cause, ni suite à donner. Le signalement et la
+     * réclamation, eux, portent tous deux sur un problème et ne se distinguent
+     * que par l'attente : informer, ou demander une action.
+     */
+    public function aide(string $locale)
+    {
+        return view('public.reclamation.aide', [
+            'locale' => $locale,
+            'draft' => $this->draft->all(),
+        ]);
+    }
+
+    public function storeAide(Request $request, string $locale)
+    {
+        $data = $request->validate([
+            'choix' => ['required', 'in:CONSEIL,DEMANDE'],
+        ]);
+
+        if ($data['choix'] === 'CONSEIL') {
+            $this->draft->merge(['demarche' => 'CONSEIL']);
 
             return redirect()->route('reclamation.categorie', $locale);
         }
@@ -52,22 +81,11 @@ class ReclamationController extends Controller
         return redirect()->route('reclamation.demarche', $locale);
     }
 
-    // ---- Écran 1 : que souhaitez-vous faire ? ----
-
-    /**
-     * Le choix entre conseil, signalement et réclamation ouvre le parcours au
-     * lieu de le clore.
-     *
-     * Il était auparavant posé au dernier écran, ce qui obligeait une personne
-     * craignant des représailles à remplir cinq écrans avant de découvrir
-     * qu'elle pouvait rester anonyme. Celle qui a le plus besoin de l'anonymat
-     * est justement celle qui abandonnera le formulaire avant d'y arriver.
-     */
+    /** Seconde question : signaler une pratique, ou déposer une réclamation. */
     public function demarche(string $locale)
     {
         return view('public.reclamation.demarche', [
             'locale' => $locale,
-            'step' => 1,
             'draft' => $this->draft->all(),
         ]);
     }
@@ -75,7 +93,7 @@ class ReclamationController extends Controller
     public function storeDemarche(Request $request, string $locale)
     {
         $data = $request->validate([
-            'demarche' => ['required', 'in:'.implode(',', config('taxonomy.demarches'))],
+            'demarche' => ['required', 'in:SIGNALEMENT,RECLAMATION'],
         ]);
 
         $this->draft->merge($data);
@@ -83,17 +101,17 @@ class ReclamationController extends Controller
         return redirect()->route('reclamation.categorie', $locale);
     }
 
-    // ---- Écran 2 : quel problème ? ----
+    // ---- Étape 1 : quel problème ? ----
 
     public function categorie(string $locale)
     {
         if ($this->draft->firstMissingStep() === 'demarche') {
-            return redirect()->route('reclamation.demarche', $locale);
+            return redirect()->route('reclamation.aide', $locale);
         }
 
         return view('public.reclamation.categorie', [
             'locale' => $locale,
-            'step' => 2,
+            'step' => 1,
             'draft' => $this->draft->all(),
         ]);
     }
@@ -109,7 +127,7 @@ class ReclamationController extends Controller
         return redirect()->route('reclamation.motif', $locale);
     }
 
-    // ---- Écran 3 : que s'est-il passé ? ----
+    // ---- Étape 2 : que s'est-il passé ? ----
 
     public function motif(string $locale)
     {
@@ -121,7 +139,7 @@ class ReclamationController extends Controller
 
         return view('public.reclamation.motif', [
             'locale' => $locale,
-            'step' => 3,
+            'step' => 2,
             'draft' => $this->draft->all(),
         ]);
     }
@@ -137,7 +155,7 @@ class ReclamationController extends Controller
         return redirect()->route('reclamation.decrire', $locale);
     }
 
-    // ---- Écran 4 : décrire ----
+    // ---- Étape 3 : décrire ----
 
     public function decrire(string $locale)
     {
@@ -147,7 +165,7 @@ class ReclamationController extends Controller
 
         return view('public.reclamation.decrire', [
             'locale' => $locale,
-            'step' => 4,
+            'step' => 3,
             'draft' => $this->draft->all(),
             'aiAvailable' => $this->ai->isAvailable(),
         ]);
@@ -189,7 +207,7 @@ class ReclamationController extends Controller
         ));
     }
 
-    // ---- Écran 5 : preuves ----
+    // ---- Étape 4 : preuves ----
 
     public function preuves(string $locale)
     {
@@ -199,7 +217,7 @@ class ReclamationController extends Controller
 
         return view('public.reclamation.preuves', [
             'locale' => $locale,
-            'step' => 5,
+            'step' => 4,
             'draft' => $this->draft->all(),
             'attachments' => Attachment::where('draft_id', $this->draft->draftId())->latest()->get(),
         ]);
@@ -210,7 +228,7 @@ class ReclamationController extends Controller
         return redirect()->route('reclamation.resultat', $locale);
     }
 
-    // ---- Écran 6 : résultat attendu ----
+    // ---- Étape 5 : résultat attendu ----
 
     public function resultat(string $locale)
     {
@@ -220,7 +238,7 @@ class ReclamationController extends Controller
 
         return view('public.reclamation.resultat', [
             'locale' => $locale,
-            'step' => 6,
+            'step' => 5,
             'draft' => $this->draft->all(),
         ]);
     }
@@ -236,7 +254,7 @@ class ReclamationController extends Controller
         return redirect()->route('reclamation.contact', $locale);
     }
 
-    // ---- Écran 7 : contact minimal ----
+    // ---- Étape 6 : contact minimal ----
 
     public function contact(string $locale)
     {
@@ -246,7 +264,7 @@ class ReclamationController extends Controller
 
         return view('public.reclamation.contact', [
             'locale' => $locale,
-            'step' => 7,
+            'step' => 6,
             'draft' => $this->draft->all(),
         ]);
     }

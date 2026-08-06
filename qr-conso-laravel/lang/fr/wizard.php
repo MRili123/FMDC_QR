@@ -9,10 +9,23 @@ return [
         'submitting' => 'Envoi en cours…',
         'draftSaved' => 'Brouillon enregistré sur cet appareil',
         'required' => 'Merci de faire un choix pour continuer',
-        'step0' => [
-            'title' => 'Que souhaitez-vous faire ?',
-            'hint' => 'Choisissez votre démarche : elle détermine ce que nous vous demanderons ensuite.',
+        // Les deux questions d'orientation, posées avant le formulaire.
+        'orient' => [
+            'aideTitle' => 'Comment pouvons-nous vous aider ?',
+            'aideHint' => 'Deux questions rapides, puis nous passons à votre situation.',
+            'conseil' => 'Obtenir un conseil',
+            'conseilHint' => 'Connaître mes droits, sans ouvrir de litige.',
+            'demande' => 'Déposer une demande',
+            'demandeHint' => 'J\'ai rencontré un problème avec un commerçant ou un service.',
+
+            'demarcheTitle' => 'Que souhaitez-vous faire ?',
+            'demarcheHint' => 'Votre choix détermine ce que nous vous demanderons ensuite.',
+            'signalement' => 'Signaler une pratique commerciale',
+            'signalementHint' => 'Informer la FMDC d\'une pratique suspecte ou illégale.',
+            'reclamation' => 'Déposer une réclamation formelle',
+            'reclamationHint' => 'Demander une action et être recontacté.',
             'anonymousBadge' => 'Anonyme possible',
+
             'change' => 'Changer de démarche',
             'contactTitleSignalement' => 'Souhaitez-vous laisser un contact ?',
             'contactHintSignalement' => 'Ce n\'est pas obligatoire. Votre signalement sera pris en compte même sans identité.',

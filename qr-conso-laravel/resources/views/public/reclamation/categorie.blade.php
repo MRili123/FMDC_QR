@@ -11,7 +11,9 @@
         </div>
     @endif
 
-    <a href="{{ route('reclamation.demarche', $locale) }}" class="fmdc-back">
+    <a href="{{ ($draft['demarche'] ?? null) === 'CONSEIL'
+                 ? route('reclamation.aide', $locale)
+                 : route('reclamation.demarche', $locale) }}" class="fmdc-back">
         <i class="las la-arrow-left"></i> {{ __('wizard.back') }}
     </a>
 

@@ -59,8 +59,10 @@ class DraftService
     {
         $draft = $this->all();
 
+        // Renvoie un suffixe de route : sans démarche on repart de la première
+        // question d'orientation, pas de la seconde.
         return match (true) {
-            empty($draft['demarche']) => 'demarche',
+            empty($draft['demarche']) => 'aide',
             empty($draft['categorie']) => 'categorie',
             empty($draft['motif']) => 'motif',
             default => null,
