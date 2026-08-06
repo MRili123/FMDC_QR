@@ -1,19 +1,20 @@
 <?php
 
+/*
+ * L'assistance IA ne s'adresse qu'aux agents du back-office : ces libellés
+ * parlent donc du dossier à traiter, pas de « votre » demande.
+ */
 return [
-    'title' => 'Assistance à la rédaction',
-    'run' => 'M\'aider à résumer',
+    'title' => 'Assistance au traitement',
+    'suggest' => 'Résumer ce dossier',
     'running' => 'Analyse en cours…',
-    'unavailable' => 'L\'assistance est momentanément indisponible. Vous pouvez continuer normalement.',
-    'summaryTitle' => 'Résumé proposé',
-    'useSummary' => 'Utiliser ce résumé',
-    'keepMine' => 'Garder mon texte',
-    'missingTitle' => 'Pièces qui renforceraient votre demande',
+    'unavailable' => 'L\'assistance IA n\'est pas disponible actuellement. Le dossier reste traitable normalement.',
+    'summaryTitle' => 'Résumé du récit',
     'classifiedAs' => 'Classement proposé',
+    'missingTitle' => 'Pièces qui manquent au dossier',
     'urgency' => 'Urgence',
     // Le §8 est explicite : l'IA assiste, elle ne décide pas.
-    'disclaimer' => 'Proposition générée automatiquement. Rien n\'est envoyé tant que vous ne l\'avez pas validé, et un agent de la FMDC vérifie ensuite votre dossier.',
-    'local' => 'Traitement effectué localement, sur le serveur de la FMDC.',
-    'suggest' => 'Suggestion IA',
+    'disclaimer' => 'Proposition générée automatiquement à partir du récit du consommateur. Elle ne modifie ni le dossier, ni son orientation : la qualification et les suites restent de votre ressort.',
+    'local' => 'Traitement effectué localement, sur le serveur de la FMDC. Aucune donnée n\'est envoyée à un service externe.',
     'noDescription' => 'Ce dossier ne contient pas de récit à analyser.',
 ];

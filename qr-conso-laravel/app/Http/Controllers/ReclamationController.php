@@ -7,8 +7,6 @@ use App\Models\OtpChallenge;
 use App\Models\QrCode;
 use App\Services\DossierService;
 use App\Services\DraftService;
-use App\Services\OllamaService;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
@@ -21,7 +19,6 @@ class ReclamationController extends Controller
     public function __construct(
         private DraftService $draft,
         private DossierService $dossiers,
-        private OllamaService $ai,
     ) {}
 
     /** Entrée du parcours. Un `qr` en paramètre pré-remplit l'établissement. */
@@ -167,7 +164,6 @@ class ReclamationController extends Controller
             'locale' => $locale,
             'step' => 3,
             'draft' => $this->draft->all(),
-            'aiAvailable' => $this->ai->isAvailable(),
         ]);
     }
 
@@ -181,30 +177,6 @@ class ReclamationController extends Controller
         $this->draft->merge($data);
 
         return redirect()->route('reclamation.preuves', $locale);
-    }
-
-    /**
-     * Assistance IA du §8, appelée en arrière-plan depuis l'écran « Décrire ».
-     * Le consommateur voit la proposition et reste libre de l'ignorer : rien
-     * n'est appliqué automatiquement à son texte.
-     */
-    public function assistance(Request $request, string $locale): JsonResponse
-    {
-        $data = $request->validate([
-            'description' => ['required', 'string', 'min:20', 'max:5000'],
-        ]);
-
-        $draft = $this->draft->all();
-
-        $piecesFournies = Attachment::where('draft_id', $this->draft->draftId())
-            ->pluck('kind')->unique()->values()->all();
-
-        return response()->json($this->ai->analyse(
-            $data['description'],
-            $locale,
-            $draft['resultat_attendu'] ?? null,
-            $piecesFournies,
-        ));
     }
 
     // ---- Étape 4 : preuves ----

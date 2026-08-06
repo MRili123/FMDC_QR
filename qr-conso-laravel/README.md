@@ -44,7 +44,8 @@ Application sur http://127.0.0.1:8000.
 
 **`PHP_CLI_SERVER_WORKERS` n'est pas décoratif.** Le serveur de développement de
 Laravel est mono-processus : pendant qu'Ollama réfléchit une vingtaine de
-secondes, toute l'application est figée pour tout le monde. Avec plusieurs
+secondes pour résumer un dossier, toute l'application serait figée pour tout le
+monde, y compris pour les consommateurs en train de déposer. Avec plusieurs
 workers, le reste du site continue de répondre.
 
 ## Comptes de démonstration
@@ -70,14 +71,20 @@ Les codes QR créés par le seed sont affichés à la fin de `artisan db:seed`.
 
 ## Ce que fait l'IA, et ce qu'elle ne fait pas
 
-Trois des services du §8 sont branchés sur un modèle local (`qwen2.5:7b`) :
-reformulation d'un récit désordonné en résumé structuré, proposition de catégorie
-et de motif, détection des pièces justificatives manquantes.
+**L'IA sert l'agent, pas le consommateur.** Elle n'apparaît que dans le
+back-office, sur la fiche d'un dossier : un bouton « Résumer ce dossier »
+produit un résumé structuré du récit, une proposition de catégorie et de motif,
+et la liste des pièces qui manqueraient.
 
-**L'IA propose, elle ne décide pas.** Le consommateur voit le résumé et choisit
-de l'utiliser ou de garder son texte ; la classification est une suggestion
-affichée à l'agent, jamais appliquée automatiquement au routage. Une valeur
-proposée hors taxonomie est écartée plutôt que transmise.
+Le parcours public n'en contient aucune trace. C'est délibéré : le consommateur
+raconte avec ses mots, et c'est ce récit brut qui fait foi. Lui proposer une
+reformulation revenait à lui demander de valider un texte qu'il n'a pas écrit,
+et à lui imposer une vingtaine de secondes d'attente au milieu d'un parcours qui
+vise les 90 secondes.
+
+**L'IA propose, elle ne décide pas.** La suggestion ne modifie ni le dossier ni
+son orientation ; une valeur proposée hors taxonomie est écartée plutôt que
+transmise au routage.
 
 Aucune donnée ne quitte la machine : le modèle tourne en local, ce qui sert
 directement les exigences du §9.

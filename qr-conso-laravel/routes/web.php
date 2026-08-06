@@ -55,9 +55,6 @@ Route::prefix('{locale}')
             Route::get('/contact', [ReclamationController::class, 'contact'])->name('contact');
             Route::post('/contact', [ReclamationController::class, 'submit'])->name('submit');
             Route::get('/confirmation', [ReclamationController::class, 'confirmation'])->name('confirmation');
-
-            // Assistance IA appelée en arrière-plan depuis l'écran « Décrire ».
-            Route::post('/assistance', [ReclamationController::class, 'assistance'])->name('assistance');
         });
 
         Route::post('/pieces', [AttachmentController::class, 'store'])->name('attachments.store');

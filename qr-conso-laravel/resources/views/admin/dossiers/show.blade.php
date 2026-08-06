@@ -56,13 +56,18 @@
                 <p class="text-muted mb-0">{{ __('admin.dossier.noDescription') }}</p>
             @endif
 
+            {{-- L'assistance IA n'existe que de ce côté : le consommateur écrit
+                 librement, l'agent obtient de quoi traiter plus vite. --}}
             @if($aiAvailable && $dossier->description)
                 <button type="button" id="ai-run" class="btn btn-sm btn-outline-primary mt-3">
                     <i class="las la-magic"></i> <span>{{ __('ia.suggest') }}</span>
                 </button>
                 <div id="ai-panel" class="fmdc-ai mt-3" hidden>
                     <div class="fmdc-ai__head"><i class="las la-robot"></i> {{ __('ia.title') }}</div>
+
+                    <strong style="font-size:13px">{{ __('ia.summaryTitle') }}</strong>
                     <div id="ai-summary" class="fmdc-ai__body"></div>
+
                     <div id="ai-class-wrap" hidden class="mt-2" style="font-size:13px">
                         <span class="text-muted">{{ __('ia.classifiedAs') }} :</span> <span id="ai-class"></span>
                     </div>
@@ -70,8 +75,16 @@
                         <strong style="font-size:13px">{{ __('ia.missingTitle') }}</strong>
                         <ul class="fmdc-ai__missing" id="ai-missing"></ul>
                     </div>
-                    <p class="fmdc-ai__note mb-0">{{ __('ia.disclaimer') }}</p>
+
+                    <p class="fmdc-ai__note mb-0">
+                        <i class="las la-info-circle"></i> {{ __('ia.disclaimer') }}
+                        <br><i class="las la-lock"></i> {{ __('ia.local') }}
+                    </p>
                 </div>
+            @elseif($dossier->description && !$aiAvailable)
+                <p class="text-muted mt-3 mb-0" style="font-size:13px">
+                    <i class="las la-robot"></i> {{ __('ia.unavailable') }}
+                </p>
             @endif
         </div>
 
