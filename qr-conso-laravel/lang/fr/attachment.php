@@ -1,6 +1,7 @@
 <?php
 
 return [
+        'kind' => 'Type de pièce',
         'TICKET' => 'Ticket de caisse',
         'FACTURE' => 'Facture ou contrat',
         'PRODUIT' => 'Photo du produit',

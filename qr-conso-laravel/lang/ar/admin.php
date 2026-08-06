@@ -6,6 +6,7 @@ return [
             'email' => 'البريد الإلكتروني',
             'password' => 'كلمة المرور',
             'submit' => 'تسجيل الدخول',
+            'remember' => 'البقاء متصلاً على هذا الجهاز',
             'invalid' => 'بيانات الدخول غير صحيحة',
         ],
         'nav' => [
@@ -16,6 +17,12 @@ return [
             'logout' => 'تسجيل الخروج',
             'sectionPilotage' => 'القيادة',
             'sectionConfig' => 'الإعدادات',
+        ],
+
+        'logout' => [
+            'confirmTitle' => 'تسجيل الخروج؟',
+            'confirmBody' => 'أنتم متصلون بصفة :name.',
+            'cancel' => 'البقاء متصلاً',
         ],
         'queue' => [
             'title' => 'الملفات',

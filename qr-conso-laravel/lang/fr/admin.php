@@ -6,6 +6,7 @@ return [
             'email' => 'Adresse e-mail',
             'password' => 'Mot de passe',
             'submit' => 'Se connecter',
+            'remember' => 'Rester connecté sur cet appareil',
             'invalid' => 'Identifiants incorrects',
         ],
         'nav' => [
@@ -16,6 +17,12 @@ return [
             'logout' => 'Se déconnecter',
             'sectionPilotage' => 'Pilotage',
             'sectionConfig' => 'Configuration',
+        ],
+
+        'logout' => [
+            'confirmTitle' => 'Se déconnecter ?',
+            'confirmBody' => 'Vous êtes connecté en tant que :name.',
+            'cancel' => 'Rester connecté',
         ],
         'queue' => [
             'title' => 'Dossiers',

@@ -77,6 +77,7 @@ Route::prefix('{locale}')
         Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
             Route::post('/login', [AuthController::class, 'login'])->name('login.attempt');
+            Route::get('/logout', [AuthController::class, 'confirmLogout'])->name('logout.confirm');
             Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
             Route::middleware('auth')->group(function () {

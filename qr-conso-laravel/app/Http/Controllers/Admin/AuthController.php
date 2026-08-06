@@ -47,4 +47,21 @@ class AuthController extends Controller
 
         return redirect()->route('admin.login', $locale);
     }
+
+    /**
+     * La déconnexion reste en POST : une déconnexion accessible en GET peut être
+     * déclenchée par n'importe quel lien ou balise image d'une page tierce, ce
+     * qui permet de faire sauter la session d'un agent à son insu.
+     *
+     * Mais arriver sur l'URL en la tapant ne doit pas produire une erreur 405 :
+     * on affiche une confirmation, dont le bouton fait le vrai POST.
+     */
+    public function confirmLogout(string $locale)
+    {
+        if (! Auth::check()) {
+            return redirect()->route('admin.login', $locale);
+        }
+
+        return view('admin.logout', ['locale' => $locale]);
+    }
 }
