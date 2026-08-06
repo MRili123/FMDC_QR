@@ -6,6 +6,15 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev", "--", "--port", "3100"],
       "port": 3100
+    },
+    {
+      "name": "qrconso-laravel",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": [
+        "/c",
+        "set PHP_CLI_SERVER_WORKERS=6 && C:\\xampp82\\php\\php.exe artisan serve --host=127.0.0.1 --port=8000"
+      ],
+      "port": 8000
     }
   ]
 }

@@ -1,0 +1,74 @@
+/*
+ * Support RTL pour l'arabe.
+ *
+ * Bootstrap 4.5 est antérieur aux propriétés logiques : ses utilitaires
+ * directionnels (ml-*, mr-*, text-left, pl-*) restent physiques et ne se
+ * retournent pas avec dir="rtl". Le thème StrikingDash en dépend largement, donc
+ * cette feuille les réinterprète. Elle n'est chargée que lorsque la locale est
+ * l'arabe.
+ *
+ * Le CSS propre au projet (fmdc.css) utilise déjà des propriétés logiques
+ * (padding-inline-start, inset-inline-start, border-inline-start) et n'a donc
+ * rien à corriger ici.
+ */
+
+body { direction: rtl; text-align: right; }
+
+/* Marges et paddings directionnels de Bootstrap 4 */
+.ml-1 { margin-left: 0 !important; margin-right: .25rem !important; }
+.ml-2 { margin-left: 0 !important; margin-right: .5rem !important; }
+.ml-3 { margin-left: 0 !important; margin-right: 1rem !important; }
+.ml-4 { margin-left: 0 !important; margin-right: 1.5rem !important; }
+.ml-auto { margin-left: 0 !important; margin-right: auto !important; }
+
+.mr-1 { margin-right: 0 !important; margin-left: .25rem !important; }
+.mr-2 { margin-right: 0 !important; margin-left: .5rem !important; }
+.mr-3 { margin-right: 0 !important; margin-left: 1rem !important; }
+.mr-4 { margin-right: 0 !important; margin-left: 1.5rem !important; }
+.mr-auto { margin-right: 0 !important; margin-left: auto !important; }
+
+.pl-1 { padding-left: 0 !important; padding-right: .25rem !important; }
+.pl-2 { padding-left: 0 !important; padding-right: .5rem !important; }
+.pl-3 { padding-left: 0 !important; padding-right: 1rem !important; }
+.pr-1 { padding-right: 0 !important; padding-left: .25rem !important; }
+.pr-2 { padding-right: 0 !important; padding-left: .5rem !important; }
+.pr-3 { padding-right: 0 !important; padding-left: 1rem !important; }
+
+.text-left { text-align: right !important; }
+.text-right { text-align: left !important; }
+
+.float-left { float: right !important; }
+.float-right { float: left !important; }
+
+/* Grille : l'ordre des colonnes doit suivre le sens de lecture */
+.row { flex-direction: row-reverse; }
+.row.fmdc-no-flip { flex-direction: row; }
+
+/* Coquille du back-office */
+.sidebar-wrapper { right: 0; left: auto; }
+.contents { margin-right: 280px; margin-left: 0; }
+body.sidebar-hide .contents { margin-right: 0; }
+
+.sidebar_nav li a { text-align: right; }
+.sidebar_nav .nav-icon { margin-left: 10px; margin-right: 0; }
+
+.navbar-left { flex-direction: row-reverse; }
+.navbar-right__menu { flex-direction: row-reverse; }
+
+/* Tableaux */
+.table th, .table td { text-align: right; }
+
+/* Champs de formulaire */
+.form-control { text-align: right; }
+.input-group > .form-control:not(:last-child) { border-radius: 0 .25rem .25rem 0; }
+.input-group > .form-control:not(:first-child) { border-radius: .25rem 0 0 .25rem; }
+
+/* Les références de dossier et numéros restent en lecture latine */
+.fmdc-ref, .fmdc-code, code, kbd, samp {
+    direction: ltr;
+    unicode-bidi: embed;
+    display: inline-block;
+}
+
+/* Icônes fléchées : le retour visuel doit pointer vers la droite en RTL */
+.fmdc-back .la-arrow-left::before { content: "\f30b"; }
