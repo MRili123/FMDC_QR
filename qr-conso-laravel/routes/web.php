@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DossierController;
 use App\Http\Controllers\Admin\QrCodeController;
 use App\Http\Controllers\AttachmentController;
+use App\Http\Controllers\ConseilController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ManifestController;
 use App\Http\Controllers\OtpController;
@@ -31,6 +32,10 @@ Route::prefix('{locale}')
 
         Route::get('/', [HomeController::class, 'index'])->name('home');
         Route::get('/manifest.webmanifest', [ManifestController::class, 'show'])->name('manifest');
+
+        // Conseil (§7) : information sur les droits, sans ouvrir de dossier.
+        Route::get('/conseil', [ConseilController::class, 'index'])->name('conseil');
+        Route::post('/conseil', [ConseilController::class, 'repondre'])->name('conseil.repondre');
 
         // ---- Parcours de dépôt (§7) ----
         Route::prefix('reclamation')->name('reclamation.')->group(function () {

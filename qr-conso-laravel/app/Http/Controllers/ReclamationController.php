@@ -69,10 +69,10 @@ class ReclamationController extends Controller
             'choix' => ['required', 'in:CONSEIL,DEMANDE'],
         ]);
 
+        // Le conseil ne passe pas par le formulaire : il n'ouvre pas de dossier,
+        // il répond à une question. Il a son propre écran.
         if ($data['choix'] === 'CONSEIL') {
-            $this->draft->merge(['demarche' => 'CONSEIL']);
-
-            return redirect()->route('reclamation.categorie', $locale);
+            return redirect()->route('conseil', $locale);
         }
 
         return redirect()->route('reclamation.demarche', $locale);

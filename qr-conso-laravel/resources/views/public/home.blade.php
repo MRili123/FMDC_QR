@@ -14,8 +14,14 @@
             <i class="las la-edit"></i> {{ __('home.cta') }}
         </a>
 
-        <a href="{{ route('suivi.form', $locale) }}" class="fmdc-btn fmdc-btn--ghost fmdc-btn--block">
+        <a href="{{ route('suivi.form', $locale) }}" class="fmdc-btn fmdc-btn--ghost fmdc-btn--block mb-3">
             <i class="las la-search"></i> {{ __('home.ctaTrack') }}
+        </a>
+
+        {{-- Le conseil n'ouvre pas de dossier : il mérite son propre accès,
+             pour qui a seulement une question à poser. --}}
+        <a href="{{ route('conseil', $locale) }}" class="fmdc-btn fmdc-btn--ghost fmdc-btn--block">
+            <i class="las la-comments"></i> {{ __('conseil.title') }}
         </a>
     </div>
 

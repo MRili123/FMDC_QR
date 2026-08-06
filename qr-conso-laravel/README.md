@@ -71,20 +71,41 @@ Les codes QR créés par le seed sont affichés à la fin de `artisan db:seed`.
 
 ## Ce que fait l'IA, et ce qu'elle ne fait pas
 
-**L'IA sert l'agent, pas le consommateur.** Elle n'apparaît que dans le
-back-office, sur la fiche d'un dossier : un bouton « Résumer ce dossier »
-produit un résumé structuré du récit, une proposition de catégorie et de motif,
-et la liste des pièces qui manqueraient.
+Le modèle local (`qwen2.5:7b`) sert à deux choses, et à rien d'autre.
 
-Le parcours public n'en contient aucune trace. C'est délibéré : le consommateur
-raconte avec ses mots, et c'est ce récit brut qui fait foi. Lui proposer une
-reformulation revenait à lui demander de valider un texte qu'il n'a pas écrit,
-et à lui imposer une vingtaine de secondes d'attente au milieu d'un parcours qui
-vise les 90 secondes.
+**1. Résumer un dossier, pour l'agent.** Sur la fiche d'un dossier, un bouton
+« Résumer ce dossier » produit un résumé structuré du récit, une proposition de
+catégorie et de motif, et la liste des pièces qui manqueraient. La suggestion ne
+modifie ni le dossier ni son orientation ; une valeur hors taxonomie est écartée
+plutôt que transmise au routage.
 
-**L'IA propose, elle ne décide pas.** La suggestion ne modifie ni le dossier ni
-son orientation ; une valeur proposée hors taxonomie est écartée plutôt que
-transmise au routage.
+Le parcours de dépôt n'en contient aucune trace : le consommateur raconte avec
+ses mots, et c'est ce récit brut qui fait foi.
+
+**2. Répondre aux questions de droit, pour le consommateur.** La démarche
+« conseil » du §7 ouvre un dialogue adossé aux fiches juridiques de la FMDC
+(`config/conseil.php`). Aucun dossier n'est créé, aucune identité demandée.
+
+### Le garde-fou du conseil
+
+Les fiches pertinentes sont sélectionnées par mots-clés et injectées dans le
+contexte ; le modèle a l'interdiction d'en sortir. **Et si aucune fiche ne
+correspond, le modèle n'est pas appelé du tout** : une réponse fixe invite à
+déposer une demande.
+
+Ce verrou est dans le code, pas dans le prompt, et l'essai l'a rendu nécessaire.
+Interrogé sur les sanctions pénales, qu'aucune fiche ne couvre, qwen2.5:7b
+répondait « la loi ne prévoit pas de sanction spécifique » — une affirmation
+fausse sur le droit marocain, énoncée avec aplomb. Renforcer la consigne n'a pas
+suffi. Devant un consommateur, c'est le seul vrai risque de la fonctionnalité.
+
+> **`config/conseil.php` est à valider par la FMDC.** Les fiches actuelles sont
+> rédigées à partir de la loi 31-08 et servent de point de départ ; elles doivent
+> être relues par le service juridique, puis remplacées par le contenu réel du
+> Guide. Le mécanisme est prêt, le contenu ne l'est pas.
+
+La réponse est diffusée en flux, jeton par jeton : à une dizaine de jetons par
+seconde, attendre la réponse complète donnerait vingt secondes d'écran figé.
 
 Aucune donnée ne quitte la machine : le modèle tourne en local, ce qui sert
 directement les exigences du §9.

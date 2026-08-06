@@ -250,6 +250,72 @@ body.fmdc-public {
 .fmdc-ai__note { font-size: 12px; color: var(--fmdc-muted); margin-top: 10px; }
 .fmdc-ai__missing { margin: 8px 0 0; padding-inline-start: 20px; font-size: 14px; }
 
+/* ---------- Conseil : information sur les droits (§7) ---------- */
+
+.fmdc-chat {
+    background: #fff;
+    border: 1px solid var(--fmdc-line);
+    border-radius: var(--fmdc-radius);
+    padding: 16px;
+    margin-bottom: 12px;
+    max-height: 46vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.fmdc-chat__msg {
+    max-width: 86%;
+    padding: 11px 14px;
+    border-radius: 14px;
+    font-size: 15px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+.fmdc-chat__msg--bot {
+    background: var(--fmdc-primary-soft);
+    color: var(--fmdc-ink);
+    align-self: flex-start;
+    border-start-start-radius: 4px;
+}
+.fmdc-chat__msg--user {
+    background: var(--fmdc-primary);
+    color: #fff;
+    align-self: flex-end;
+    border-start-end-radius: 4px;
+}
+.fmdc-chat__msg--typing { color: var(--fmdc-muted); font-style: italic; }
+
+.fmdc-chat__form { display: flex; gap: 8px; margin-bottom: 12px; }
+.fmdc-chat__form .form-control {
+    border-radius: 10px;
+    border-color: var(--fmdc-line);
+    padding: 12px 14px;
+    height: auto;
+}
+.fmdc-chat__form .fmdc-btn { padding: 12px 18px; flex: 0 0 auto; }
+
+.fmdc-chat__note {
+    font-size: 12.5px;
+    color: var(--fmdc-muted);
+    line-height: 1.5;
+    margin-bottom: 16px;
+}
+
+.fmdc-suggestions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.fmdc-chip {
+    background: #fff;
+    border: 1px solid var(--fmdc-line);
+    border-radius: 999px;
+    padding: 7px 14px;
+    font-size: 13px;
+    color: var(--fmdc-primary);
+    cursor: pointer;
+}
+.fmdc-chip:hover { background: var(--fmdc-primary-soft); }
+
 /* ---------- Vérification du QR (§9) ---------- */
 
 .fmdc-verify {

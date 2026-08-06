@@ -145,6 +145,61 @@ class OllamaService
         return $pieces ?: null;
     }
 
+    /**
+     * Génération en flux, jeton par jeton.
+     *
+     * Ollama renvoie du NDJSON : un objet JSON par ligne, chacun portant un
+     * fragment de texte. On les relaie au fur et à mesure au lieu d'attendre la
+     * fin — sur un modèle local à une dizaine de jetons par seconde, c'est la
+     * différence entre une réponse qui s'écrit et un écran figé.
+     *
+     * @return iterable<string>
+     */
+    public function generateStream(string $prompt, int $maxTokens = 500): iterable
+    {
+        if (! $this->isEnabled()) {
+            return;
+        }
+
+        try {
+            $response = Http::timeout(config('qrconso.ai.timeout'))
+                ->withOptions(['stream' => true])
+                ->post(config('qrconso.ai.url').'/api/generate', [
+                    'model' => config('qrconso.ai.model'),
+                    'prompt' => $prompt,
+                    'stream' => true,
+                    'options' => [
+                        'temperature' => 0.2,
+                        'num_predict' => $maxTokens,
+                    ],
+                ]);
+
+            $body = $response->toPsrResponse()->getBody();
+            $tampon = '';
+
+            while (! $body->eof()) {
+                $tampon .= $body->read(1024);
+
+                // Une lecture peut couper une ligne en deux : on ne traite que
+                // les lignes complètes et on garde le reste pour le tour suivant.
+                while (($coupure = strpos($tampon, "\n")) !== false) {
+                    $ligne = substr($tampon, 0, $coupure);
+                    $tampon = substr($tampon, $coupure + 1);
+
+                    $donnees = json_decode(trim($ligne), true);
+                    if (isset($donnees['response']) && $donnees['response'] !== '') {
+                        yield $donnees['response'];
+                    }
+                    if (! empty($donnees['done'])) {
+                        return;
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Ollama : flux interrompu', ['message' => $e->getMessage()]);
+        }
+    }
+
     private function generate(string $prompt, int $maxTokens, ?string $format = null): ?string
     {
         $payload = [
