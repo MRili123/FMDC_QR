@@ -113,11 +113,28 @@
 <script src="{{ asset('theme/assets/vendor_assets/js/bootstrap/bootstrap.min.js') }}"></script>
 <script src="{{ asset('theme/assets/vendor_assets/js/Chart.min.js') }}"></script>
 <script>
-    // La sidebar du thème dépend de scripts que nous ne chargeons pas (cartes,
-    // calendrier, éditeurs) : ce repli suffit pour le seul comportement utile ici.
+    // Le script de barre latérale du thème n'est pas chargé (il dépend de
+    // cartes, calendriers et éditeurs dont nous n'avons pas l'usage). Ce repli
+    // couvre les deux comportements utiles, selon la largeur de la fenêtre :
+    // replier la barre sur grand écran, l'ouvrir en tiroir en dessous de 1150px.
+    var LARGE = window.matchMedia('(min-width: 1151px)');
+
     $('.sidebar-toggle').on('click', function (e) {
         e.preventDefault();
-        $('body').toggleClass('sidebar-hide');
+        $('body').toggleClass(LARGE.matches ? 'sidebar-hide' : 'sidebar-open');
+    });
+
+    // Refermer le tiroir en touchant le voile, ou en suivant un lien du menu.
+    $(document).on('click', function (e) {
+        if (! LARGE.matches && $('body').hasClass('sidebar-open')
+            && ! $(e.target).closest('.sidebar-wrapper, .sidebar-toggle').length) {
+            $('body').removeClass('sidebar-open');
+        }
+    });
+
+    // Un changement de largeur ne doit pas laisser la page dans un état hybride.
+    LARGE.addEventListener('change', function () {
+        $('body').removeClass('sidebar-open sidebar-hide');
     });
 </script>
 @stack('scripts')

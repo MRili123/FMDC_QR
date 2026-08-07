@@ -413,6 +413,54 @@ body.fmdc-public {
 
 .fmdc-page-title { font-size: 22px; font-weight: 700; margin: 24px 0 18px; }
 
-/* Le thème ne prévoit pas de repli quand ses scripts ne sont pas chargés. */
-body.sidebar-hide .sidebar-wrapper { display: none; }
-body.sidebar-hide .contents { margin-inline-start: 0; }
+/* ---------- Écran de chargement du thème ----------
+ *
+ * StrikingDash pose un voile BLANC opaque plein écran en `body:after`
+ * (z-index 99998, opacity 1) : c'est son écran de chargement, que son propre
+ * JavaScript escamote une fois la page prête. Nous ne chargeons pas ce script,
+ * donc le voile ne partait jamais et le back-office s'affichait entièrement
+ * blanc — la page était complète dans le DOM, mais rien n'était visible.
+ *
+ * Les pages publiques n'étaient pas touchées : elles ne chargent pas style.css.
+ * C'est pourquoi la connexion s'affichait, et l'écran suivant non.
+ */
+body::after { display: none !important; }
+
+/* ---------- Barre latérale : repli sans le JavaScript du thème ----------
+ *
+ * StrikingDash dégage 295px à gauche du contenu au-dessus de 1150px, ce qui
+ * laisse la place à sa barre latérale en position fixe. En dessous de ce seuil
+ * il ramène ce dégagement à 16px et compte sur son propre script pour escamoter
+ * la barre. Comme nous ne chargeons pas ce script, la barre restait posée
+ * par-dessus le contenu : sur une fenêtre de moins de 1150px, le back-office
+ * paraissait vide alors que la page était entièrement rendue.
+ */
+
+/* Grand écran : la barre est visible, le bouton permet de la replier. */
+@media (min-width: 1151px) {
+    body.sidebar-hide .sidebar-wrapper { transform: translateX(-100%); }
+    body.sidebar-hide .contents { padding-left: 16px; }
+    [dir="rtl"] body.sidebar-hide .sidebar-wrapper,
+    body[dir="rtl"].sidebar-hide .sidebar-wrapper { transform: translateX(100%); }
+}
+
+/* Écran plus étroit : la barre est escamotée par défaut, et s'ouvre par-dessus
+   le contenu avec un voile, comme un tiroir. */
+@media (max-width: 1150px) {
+    .sidebar-wrapper {
+        transform: translateX(-100%);
+        transition: transform .25s ease;
+    }
+    body.sidebar-open .sidebar-wrapper { transform: none; }
+
+    /* ::before et non ::after : ::after porte l'écran de chargement du thème,
+       que l'on neutralise plus haut. */
+    body.sidebar-open::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: rgba(28, 36, 49, .45);
+        z-index: 998;
+    }
+}
+
