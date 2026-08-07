@@ -19,7 +19,11 @@
     @endif
     <link rel="icon" type="image/svg+xml" href="{{ asset('icon.svg') }}">
 </head>
-<body class="layout-light side-menu overlayScroll">
+{{-- Pas de classe `overlayScroll` : elle met `overflow: hidden` sur le body et
+     confie le défilement au script de barre de défilement personnalisée du
+     thème, que nous ne chargeons pas. La page devenait alors impossible à faire
+     défiler. --}}
+<body class="layout-light side-menu">
 
 <header class="header-top">
     <nav class="navbar navbar-light">

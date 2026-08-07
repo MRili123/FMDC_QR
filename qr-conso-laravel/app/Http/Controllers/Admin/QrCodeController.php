@@ -28,12 +28,34 @@ class QrCodeController extends Controller
     {
         abort_unless($request->user()->isFmdcAdmin(), 403);
 
+        // Les trois types du §6.1 ne portent pas les mêmes informations : un QR
+        // national est générique, un QR sectoriel pré-remplit le secteur, un QR
+        // d'établissement identifie un lieu précis. Les règles suivent cette
+        // distinction, et ne se contentent pas de la refléter dans l'interface :
+        // un formulaire trafiqué ne doit pas pouvoir attacher un établissement à
+        // un QR national.
         $data = $request->validate([
             'type' => ['required', 'in:NATIONAL,SECTORIEL,ETABLISSEMENT'],
             'libelle' => ['required', 'string', 'max:255'],
-            'secteur' => ['nullable', 'in:'.implode(',', config('taxonomy.secteurs'))],
-            'region' => ['nullable', 'in:'.implode(',', config('taxonomy.regions'))],
-            'etablissement' => ['nullable', 'string', 'max:255'],
+
+            'secteur' => [
+                'exclude_if:type,NATIONAL',
+                'required_if:type,SECTORIEL',
+                'nullable',
+                'in:'.implode(',', config('taxonomy.secteurs')),
+            ],
+            'region' => [
+                'exclude_if:type,NATIONAL',
+                'nullable',
+                'in:'.implode(',', config('taxonomy.regions')),
+            ],
+            'etablissement' => [
+                'exclude_unless:type,ETABLISSEMENT',
+                'required_if:type,ETABLISSEMENT',
+                'string',
+                'max:255',
+            ],
+
             'support' => ['nullable', 'string', 'max:255'],
         ]);
 

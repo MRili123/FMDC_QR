@@ -104,6 +104,12 @@ return [
             'secteur' => 'Secteur',
             'region' => 'Région',
             'none' => 'Aucun',
+            'typeNATIONAL' => 'National — accès général',
+            'typeSECTORIEL' => 'Sectoriel — secteur pré-rempli',
+            'typeETABLISSEMENT' => 'Établissement — lieu identifié',
+            'hintNATIONAL' => 'QR générique : affiches, campagnes, réseaux sociaux. Il n\'identifie ni secteur, ni région, ni établissement.',
+            'hintSECTORIEL' => 'Le secteur arrive pré-rempli dans le formulaire, et reste modifiable par le consommateur.',
+            'hintETABLISSEMENT' => 'Après le scan, l\'établissement est déjà identifié. Le code ne transporte qu\'un identifiant technique.',
         ],
         'associations' => [
             'title' => 'Associations et routage',

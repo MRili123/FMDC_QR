@@ -413,6 +413,12 @@ body.fmdc-public {
 
 .fmdc-page-title { font-size: 22px; font-weight: 700; margin: 24px 0 18px; }
 
+/* Champ sans objet pour le type choisi : estompé plutôt que masqué, pour que
+   l'agent voie qu'il existe et comprenne pourquoi il ne s'applique pas ici. */
+.fmdc-field--off { opacity: .45; }
+.fmdc-field--off .form-control { background: #f4f5f7; cursor: not-allowed; }
+.fmdc-req { color: var(--fmdc-accent); font-weight: 700; }
+
 /* ---------- Écran de chargement du thème ----------
  *
  * StrikingDash pose un voile BLANC opaque plein écran en `body:after`
@@ -425,6 +431,11 @@ body.fmdc-public {
  * C'est pourquoi la connexion s'affichait, et l'écran suivant non.
  */
 body::after { display: none !important; }
+
+/* Même origine : `.overlayScroll` coupe le défilement du body au profit de la
+   barre de défilement personnalisée du thème. Filet de sécurité si la classe
+   revient un jour dans une vue. */
+body.overlayScroll { overflow: visible !important; }
 
 /* ---------- Barre latérale : repli sans le JavaScript du thème ----------
  *
