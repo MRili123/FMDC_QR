@@ -31,11 +31,29 @@
         </div>
 
         <div class="fmdc-card">
-            <div class="fmdc-field mb-0">
+            <div class="fmdc-field">
                 <label for="professionnel">{{ __('wizard.step3.professionnel') }}</label>
                 <input id="professionnel" name="professionnel" type="text" class="form-control" maxlength="200"
                        value="{{ old('professionnel', $draft['professionnel'] ?? '') }}">
                 <small>{{ __('wizard.step3.professionnelHint') }}</small>
+            </div>
+
+            {{-- La région sert à proposer l'association la plus proche. Elle
+                 reste facultative : le §7 plafonne à cinq informations
+                 obligatoires, et un dossier sans région part au bureau national
+                 plutôt que d'être bloqué. Un scan de QR la pré-remplit. --}}
+            <div class="fmdc-field mb-0">
+                <label for="region">{{ __('wizard.step3.region') }}</label>
+                <select id="region" name="region" class="form-control">
+                    <option value="">{{ __('wizard.step3.regionNone') }}</option>
+                    @foreach(config('taxonomy.regions') as $region)
+                        <option value="{{ $region }}"
+                            @selected(old('region', $draft['region'] ?? '') === $region)>
+                            {{ __("region.$region") }}
+                        </option>
+                    @endforeach
+                </select>
+                <small>{{ __('wizard.step3.regionHint') }}</small>
             </div>
         </div>
 

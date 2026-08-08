@@ -172,7 +172,14 @@ class ReclamationController extends Controller
         $data = $request->validate([
             'description' => ['nullable', 'string', 'max:5000'],
             'professionnel' => ['nullable', 'string', 'max:200'],
+            'region' => ['nullable', 'in:'.implode(',', config('taxonomy.regions'))],
         ]);
+
+        // Un QR d'établissement a déjà fixé la région : ne pas l'écraser par un
+        // choix vide si la personne n'a pas touché à la liste.
+        if (empty($data['region'])) {
+            unset($data['region']);
+        }
 
         $this->draft->merge($data);
 

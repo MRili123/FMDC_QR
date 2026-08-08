@@ -39,6 +39,9 @@ return [
             'hint' => 'Une seule réponse suffit.',
         ],
         'step3' => [
+            'region' => 'Où cela s’est-il passé ?',
+            'regionNone' => 'Je préfère ne pas préciser',
+            'regionHint' => 'Facultatif. Cela nous aide à confier votre dossier à une association proche de vous.',
             'title' => 'Racontez-nous',
             'hint' => 'Écrivez, ou enregistrez un message vocal si c\'est plus simple.',
             'tabWrite' => 'Écrire',

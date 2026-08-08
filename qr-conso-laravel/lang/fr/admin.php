@@ -81,6 +81,19 @@ return [
             'extracted' => 'Texte extrait automatiquement',
             'failed' => 'L\'extraction n\'a pas abouti.',
         ],
+        'suggestion' => [
+            'title' => 'Orientation proposée',
+            'hintRegion' => 'Compétence sur le sujet, puis proximité avec :region.',
+            'hintNoRegion' => 'Compétence sur le sujet. Aucun lieu n\'a été indiqué : la proximité n\'a pas pu être prise en compte.',
+            'current' => 'Affecté',
+            'assign' => 'Affecter',
+            'raison' => [
+                'regle_regionale' => 'règle de routage pour cette région',
+                'regle_nationale' => 'règle de routage nationale',
+                'secteur' => 'traite ce secteur',
+                'region' => 'couvre cette région',
+            ],
+        ],
         'dashboard' => [
             'title' => 'Tableau de bord',
             'total' => 'Dossiers',

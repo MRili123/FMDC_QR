@@ -62,6 +62,9 @@ class DossierController extends Controller
             'associations' => Association::where('active', true)->orderBy('nom')->get(),
             'aiAvailable' => $this->ai->isAvailable(),
             'extractionAvailable' => app(\App\Services\ExtractionService::class)->isEnabled(),
+            // Compétence d'abord, proximité ensuite : voir RoutingService.
+            'suggestions' => app(\App\Services\RoutingService::class)
+                ->suggest($dossier->categorie, $dossier->region),
         ]);
     }
 

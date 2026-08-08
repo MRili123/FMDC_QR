@@ -419,6 +419,30 @@ body.fmdc-public {
 .fmdc-field--off .form-control { background: #f4f5f7; cursor: not-allowed; }
 .fmdc-req { color: var(--fmdc-accent); font-weight: 700; }
 
+/* ---------- Orientation proposée ---------- */
+
+.fmdc-suggestion {
+    padding: 12px;
+    border: 1px solid var(--fmdc-line);
+    border-radius: 10px;
+    margin-bottom: 8px;
+}
+/* La première proposition se distingue, sans pour autant masquer les autres :
+   l'agent doit voir qu'il a le choix. */
+.fmdc-suggestion--top { border-color: var(--fmdc-primary); background: var(--fmdc-primary-soft); }
+
+.fmdc-raison {
+    display: inline-block;
+    background: #fff;
+    border: 1px solid var(--fmdc-line);
+    border-radius: 999px;
+    padding: 2px 9px;
+    margin: 2px 4px 2px 0;
+    font-size: 11.5px;
+    color: var(--fmdc-muted);
+}
+[dir="rtl"] .fmdc-raison { margin: 2px 0 2px 4px; }
+
 /* ---------- Pièces jointes du back-office ---------- */
 
 .fmdc-piece { padding: 12px 0; border-bottom: 1px solid var(--fmdc-line); }

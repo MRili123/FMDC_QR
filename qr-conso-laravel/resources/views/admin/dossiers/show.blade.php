@@ -224,6 +224,49 @@
             <button type="submit" class="fmdc-btn fmdc-btn--block">{{ __('admin.dossier.apply') }}</button>
         </form>
 
+        {{-- Proposition d'orientation : compétence sur le sujet d'abord,
+             proximité géographique ensuite. Chaque raison est affichée, pour que
+             l'agent puisse contredire la proposition en connaissance de cause. --}}
+        @if($suggestions->isNotEmpty())
+            <div class="fmdc-stat mb-3">
+                <h2 style="font-size:16px;font-weight:600;margin-bottom:2px">{{ __('admin.suggestion.title') }}</h2>
+                <p class="text-muted" style="font-size:13px">
+                    {{ $dossier->region
+                        ? __('admin.suggestion.hintRegion', ['region' => __("region.{$dossier->region}")])
+                        : __('admin.suggestion.hintNoRegion') }}
+                </p>
+
+                @foreach($suggestions as $i => $s)
+                    <div class="fmdc-suggestion {{ $i === 0 ? 'fmdc-suggestion--top' : '' }}">
+                        <div class="d-flex align-items-start" style="gap:10px">
+                            <span class="flex-grow-1" style="min-width:0">
+                                <strong style="font-size:14px">{{ $s['association']->nom }}</strong>
+                                <span class="d-block mt-1">
+                                    @foreach($s['raisons'] as $raison)
+                                        <span class="fmdc-raison">{{ __("admin.suggestion.raison.$raison") }}</span>
+                                    @endforeach
+                                </span>
+                            </span>
+
+                            @if($dossier->assigned_association_id === $s['association']->id)
+                                <span class="fmdc-status fmdc-status--done" style="white-space:nowrap">
+                                    {{ __('admin.suggestion.current') }}
+                                </span>
+                            @else
+                                <form method="POST" action="{{ route('admin.dossiers.assign', [$locale, $dossier]) }}">
+                                    @csrf
+                                    <input type="hidden" name="association_id" value="{{ $s['association']->id }}">
+                                    <button class="btn btn-sm btn-outline-primary" style="white-space:nowrap">
+                                        {{ __('admin.suggestion.assign') }}
+                                    </button>
+                                </form>
+                            @endif
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        @endif
+
         <form method="POST" action="{{ route('admin.dossiers.assign', [$locale, $dossier]) }}" class="fmdc-stat">
             @csrf
             <h2 style="font-size:16px;font-weight:600;margin-bottom:12px">{{ __('admin.dossier.reassign') }}</h2>

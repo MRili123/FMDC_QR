@@ -72,6 +72,31 @@ return [
         'enseignement',
     ],
 
+    /*
+     * Correspondance entre ce que décrit le consommateur (catégorie) et ce que
+     * déclare une association (secteur). Les deux vocabulaires diffèrent
+     * volontairement : le consommateur dit « achat sur Internet », l'association
+     * dit « commerce en ligne ».
+     *
+     * Sans cette table, une association ne pouvait être trouvée que par une
+     * règle de routage saisie à la main. Elle permet de proposer une association
+     * compétente même quand personne n'a encore écrit la règle.
+     *
+     * Certaines catégories n'ont pas de secteur équivalent (logement, service
+     * public, autre) : elles restent du ressort du bureau national.
+     */
+    'category_sector' => [
+        'achat_magasin' => 'commerce',
+        'achat_internet' => 'ecommerce',
+        'telecom' => 'telecom',
+        'banque_assurance' => 'banque_assurance',
+        'eau_energie' => 'eau_energie',
+        'transport_livraison' => 'transport',
+        'sante' => 'sante',
+        'education' => 'enseignement',
+        'tourisme_restauration' => 'tourisme',
+    ],
+
     // Les cartes du §7 doivent être reconnaissables sans être lues.
     'category_icons' => [
         'achat_magasin' => '🛒',
