@@ -114,9 +114,39 @@ Les trois services tiennent dans **une seule génération**. En trois appels
 séparés le parcours attendait ~47 s, parce qu'Ollama sérialise les requêtes sur
 un même modèle et que le coût est dominé par les jetons produits.
 
-Deux services du §8 restent à faire : la **transcription vocale** (darija, arabe,
-amazighe) demande un modèle de parole type Whisper, et l'**OCR** des factures
-demande un modèle de vision. Ollama seul ne les couvre pas.
+**3. Lire les pièces jointes à la place de l'agent.** Sur la fiche d'un dossier,
+chaque photo et chaque enregistrement peut être converti en texte : OCR par
+Tesseract, transcription par faster-whisper. Le texte est conservé et affiché
+sous la pièce.
+
+L'intérêt est le §6.3 : quand un dossier est orienté vers une association, celle-ci
+lit le contenu directement dans la fiche au lieu d'ouvrir chaque pièce. Ouvrir
+reste possible — la pièce est affichée en aperçu et le lecteur audio est là — mais
+devient facultatif.
+
+Ollama ne fait que du texte : la parole demande un modèle acoustique et l'image un
+moteur d'OCR. Laravel appelle donc `python/extract_text.py` en sous-processus
+(`Symfony\Component\Process`) et lit une ligne de JSON. Rien à maintenir en plus,
+et tout reste local.
+
+Prérequis Python (une fois) :
+
+```bash
+py -3.12 -m pip install faster-whisper pytesseract pillow
+winget install --id UB-Mannheim.TesseractOCR --exact
+```
+
+Les fichiers de langue de Tesseract (`fra`, `ara`) vivent dans
+`storage/app/tessdata` : « Program Files » n'est pas accessible en écriture sans
+élévation, et le dépôt doit rester installable sans droits d'administrateur.
+
+`PYTHON_BIN` doit désigner l'interpréteur où ces paquets sont installés, **pas
+forcément celui du PATH** : sur cette machine le `python` par défaut est une
+version alpha 3.15 que faster-whisper ne prend pas en charge.
+
+Ordres de grandeur mesurés : OCR d'un ticket ~3 s, transcription d'un message
+vocal court ~11 s sur processeur. Le tout premier appel télécharge le modèle
+Whisper, d'où un délai d'attente volontairement large.
 
 Sans Ollama, `AI_ENABLED=false` ou modèle arrêté, les boutons d'assistance
 disparaissent et le reste fonctionne à l'identique.

@@ -61,6 +61,7 @@ class DossierController extends Controller
             'events' => $dossier->events()->orderByDesc('created_at')->get(),
             'associations' => Association::where('active', true)->orderBy('nom')->get(),
             'aiAvailable' => $this->ai->isAvailable(),
+            'extractionAvailable' => app(\App\Services\ExtractionService::class)->isEnabled(),
         ]);
     }
 

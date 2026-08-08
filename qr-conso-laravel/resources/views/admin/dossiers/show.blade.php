@@ -89,13 +89,53 @@
         </div>
 
         <div class="fmdc-stat mb-3">
-            <h2 style="font-size:16px;font-weight:600;margin-bottom:12px">{{ __('admin.dossier.attachments') }}</h2>
+            <h2 style="font-size:16px;font-weight:600;margin-bottom:4px">{{ __('admin.dossier.attachments') }}</h2>
+            <p class="text-muted" style="font-size:13px">{{ __('admin.piece.hint') }}</p>
+
             @forelse($dossier->attachments as $piece)
-                <div class="d-flex align-items-center py-2 border-bottom" style="gap:10px;font-size:14px">
-                    <i class="las {{ $piece->isImage() ? 'la-image' : ($piece->isAudio() ? 'la-microphone' : 'la-file') }}"></i>
-                    <span>{{ $piece->original_name }}
-                        <small class="text-muted d-block">{{ __("attachment.{$piece->kind}") }} · {{ round($piece->size / 1024) }} Ko</small>
-                    </span>
+                @php($extractible = $piece->isImage() || $piece->isAudio())
+                <div class="fmdc-piece" data-piece="{{ $piece->id }}">
+                    <div class="d-flex align-items-center" style="gap:10px">
+                        <i class="las {{ $piece->isImage() ? 'la-image' : ($piece->isAudio() ? 'la-microphone' : 'la-file') }}"
+                           style="font-size:22px;color:var(--fmdc-primary)"></i>
+                        <span class="flex-grow-1" style="font-size:14px;min-width:0">
+                            {{ $piece->original_name }}
+                            <small class="text-muted d-block">
+                                {{ __("attachment.{$piece->kind}") }} · {{ round($piece->size / 1024) }} Ko
+                            </small>
+                        </span>
+
+                        {{-- Ouvrir reste possible, mais devient facultatif : le
+                             texte extrait suffit dans la plupart des cas. --}}
+                        <a href="{{ route('admin.attachments.show', [$locale, $piece]) }}" target="_blank"
+                           class="btn btn-sm btn-outline-primary" style="white-space:nowrap">
+                            <i class="las la-external-link-alt"></i> {{ __('admin.piece.open') }}
+                        </a>
+
+                        @if($extractible && $extractionAvailable)
+                            <button type="button" class="btn btn-sm btn-outline-secondary fmdc-extract"
+                                    data-url="{{ route('admin.attachments.extract', [$locale, $piece]) }}"
+                                    style="white-space:nowrap">
+                                <i class="las la-font"></i>
+                                <span>{{ $piece->isAudio() ? __('admin.piece.transcribe') : __('admin.piece.ocr') }}</span>
+                            </button>
+                        @endif
+                    </div>
+
+                    @if($piece->isImage())
+                        <img src="{{ route('admin.attachments.show', [$locale, $piece]) }}"
+                             alt="{{ $piece->original_name }}" class="fmdc-piece__apercu" loading="lazy">
+                    @elseif($piece->isAudio())
+                        <audio controls preload="none" class="fmdc-piece__audio">
+                            <source src="{{ route('admin.attachments.show', [$locale, $piece]) }}"
+                                    type="{{ $piece->mime_type }}">
+                        </audio>
+                    @endif
+
+                    <div class="fmdc-piece__texte" @if(! $piece->transcription) hidden @endif>
+                        <strong style="font-size:12px">{{ __('admin.piece.extracted') }}</strong>
+                        <p class="mb-0">{{ $piece->transcription }}</p>
+                    </div>
                 </div>
             @empty
                 <p class="text-muted mb-0">{{ __('admin.dossier.noAttachments') }}</p>
@@ -203,6 +243,46 @@
 @endsection
 
 @push('scripts')
+<script>
+(function () {
+    var token = document.querySelector('meta[name=csrf-token]').content;
+
+    document.querySelectorAll('.fmdc-extract').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var bloc = btn.closest('.fmdc-piece');
+            var cible = bloc.querySelector('.fmdc-piece__texte');
+            var libelle = btn.querySelector('span');
+            var initial = libelle.textContent;
+
+            btn.disabled = true;
+            libelle.textContent = @json(__('admin.piece.working'));
+
+            fetch(btn.dataset.url, {
+                method: 'POST',
+                headers: {'X-CSRF-TOKEN': token, 'Accept': 'application/json'}
+            })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                cible.hidden = false;
+                if (d.ok) {
+                    cible.querySelector('p').textContent = d.text;
+                } else {
+                    cible.querySelector('p').textContent =
+                        @json(__('admin.piece.failed')) + ' (' + (d.error || '?') + ')';
+                }
+            })
+            .catch(function () {
+                cible.hidden = false;
+                cible.querySelector('p').textContent = @json(__('admin.piece.failed'));
+            })
+            .finally(function () {
+                btn.disabled = false;
+                libelle.textContent = initial;
+            });
+        });
+    });
+})();
+</script>
 @if($aiAvailable && $dossier->description)
 <script>
 (function () {

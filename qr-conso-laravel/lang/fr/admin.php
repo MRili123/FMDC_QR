@@ -72,6 +72,15 @@ return [
             'association' => 'Association',
             'history' => 'Historique',
         ],
+        'piece' => [
+            'hint' => 'Le texte extrait accompagne le dossier : l\'association destinataire n\'a pas besoin d\'ouvrir chaque pièce.',
+            'open' => 'Ouvrir',
+            'ocr' => 'Lire le texte',
+            'transcribe' => 'Transcrire',
+            'working' => 'Extraction…',
+            'extracted' => 'Texte extrait automatiquement',
+            'failed' => 'L\'extraction n\'a pas abouti.',
+        ],
         'dashboard' => [
             'title' => 'Tableau de bord',
             'total' => 'Dossiers',

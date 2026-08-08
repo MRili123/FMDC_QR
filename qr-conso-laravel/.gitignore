@@ -22,3 +22,6 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Donnees de langue Tesseract : telechargees a l'installation, pas versionnees
+/storage/app/tessdata

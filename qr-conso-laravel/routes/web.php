@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AssociationController;
+use App\Http\Controllers\Admin\AttachmentController as AdminAttachmentController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DossierController;
@@ -86,6 +87,11 @@ Route::prefix('{locale}')
                 Route::post('/dossiers/{dossier}/statut', [DossierController::class, 'updateStatus'])->name('dossiers.status');
                 Route::post('/dossiers/{dossier}/affectation', [DossierController::class, 'assign'])->name('dossiers.assign');
                 Route::post('/dossiers/{dossier}/ia', [DossierController::class, 'aiSuggest'])->name('dossiers.ai');
+
+                // Les pièces jointes ne sont pas servies depuis public/ :
+                // l'accès passe par un contrôleur qui vérifie le périmètre.
+                Route::get('/pieces/{attachment}', [AdminAttachmentController::class, 'show'])->name('attachments.show');
+                Route::post('/pieces/{attachment}/texte', [AdminAttachmentController::class, 'extract'])->name('attachments.extract');
 
                 Route::get('/tableau-de-bord', [DashboardController::class, 'index'])->name('dashboard');
 
